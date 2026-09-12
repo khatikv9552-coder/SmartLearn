@@ -270,7 +270,7 @@
 
                 <div class="message bot">
 
-                    👋 Hello Vishal! I'm your AI Learning
+                    👋 Hello Student! I'm your AI Learning
                     Assistant.
 
                     <br><br>
@@ -353,27 +353,11 @@
         sendMessage();
     }
 
-    function cleanAIAnswer(text) {
-        return String(text || "")
-            .replace(/\\*\\*/g, "")
-            .replace(/\\$/g, "")
-            .replace(/^\\s*#{1,6}\\s*/gm, "")
-            .replace(/^\\s*[-*]\\s+/gm, "• ")
-            .replace(/\\n{3,}/g, "\\n\\n")
-            .trim();
-    }
-
     function addMessage(text, type) {
         const messages = document.getElementById("messages");
         const message = document.createElement("div");
         message.className = "message " + type;
-
-        if (type === "bot") {
-            message.innerText = cleanAIAnswer(text);
-        } else {
-            message.innerText = text;
-        }
-
+        message.innerText = text;
         messages.appendChild(message);
         messages.scrollTop = messages.scrollHeight;
     }
