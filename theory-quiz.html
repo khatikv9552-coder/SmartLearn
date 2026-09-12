@@ -108,7 +108,7 @@ async function checkAnswer(i){
    imageBase64=await fileToBase64(photo);
   }
 
-  const response=await fetch("http://localhost:5000/check-theory-answer",{
+  const response=await fetch("https://smartlearn-v385.onrender.com/check-theory-answer",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
    body:JSON.stringify({
