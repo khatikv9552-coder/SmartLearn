@@ -7,9 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "15mb" }));
 
-
 // =====================================================
-// GEMINI AI CONFIGURATION
+// GEMINI AI
+// API key Render Environment Variable मधून घेतली जाते.
+// API key इथे कधीही लिहू नका.
 // =====================================================
 
 const gemini = new GoogleGenAI({
@@ -18,53 +19,152 @@ const gemini = new GoogleGenAI({
 
 const GEMINI_MODEL = "gemini-3.8-flash";
 
+// Primary + fallback models
+const GEMINI_MODELS = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-3.6-flash"
+];
+
+const MAX_RETRIES_PER_MODEL = 2;
+
 
 // =====================================================
-// GEMINI TEXT AI
+// DELAY FUNCTION
 // =====================================================
 
-async function askGemini(prompt) {
-
-    if (!process.env.GEMINI_API_KEY) {
-        throw new Error(
-            "GEMINI_API_KEY is not configured"
-        );
-    }
-
-    const response =
-        await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: prompt
-        });
-
-    if (
-        !response ||
-        !response.text
-    ) {
-        throw new Error(
-            "No response from Gemini"
-        );
-    }
-
-    return response.text;
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
 // =====================================================
-// GEMINI IMAGE + TEXT AI
-// Used for handwritten answer checking
+// CHECK TEMPORARY GEMINI ERROR
+// =====================================================
+
+function isTemporaryGeminiError(error) {
+
+    const code = Number(
+        error?.status ??
+        error?.code ??
+        error?.response?.status ??
+        0
+    );
+
+    const message = String(
+        error?.message ||
+        error ||
+        ""
+    );
+
+    return (
+        [429, 500, 502, 503, 504].includes(code) ||
+        /high demand|unavailable|temporar|overload|rate.?limit|resource.?exhausted/i.test(message)
+    );
+}
+
+
+// =====================================================
+// GEMINI WITH RETRY + FALLBACK
+// =====================================================
+
+async function generateWithFallback(contents, isVision = false) {
+
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    let lastError = null;
+
+    for (const model of GEMINI_MODELS) {
+
+        for (
+            let attempt = 1;
+            attempt <= MAX_RETRIES_PER_MODEL;
+            attempt++
+        ) {
+
+            try {
+
+                console.log(
+                    `${isVision ? "Vision" : "Text"} request -> ${model} (attempt ${attempt})`
+                );
+
+                const response =
+                    await gemini.models.generateContent({
+                        model: model,
+                        contents: contents
+                    });
+
+                if (!response || !response.text) {
+                    throw new Error(
+                        `No response from Gemini (${model})`
+                    );
+                }
+
+                console.log(
+                    `Gemini response received from ${model}`
+                );
+
+                return response.text;
+
+            } catch (error) {
+
+                lastError = error;
+
+                console.error(
+                    `Gemini ${model} attempt ${attempt} failed:`,
+                    error?.message || error
+                );
+
+                // Temporary error असल्यासच retry/fallback
+                if (!isTemporaryGeminiError(error)) {
+                    throw error;
+                }
+
+                if (attempt < MAX_RETRIES_PER_MODEL) {
+
+                    await sleep(
+                        1200 * attempt
+                    );
+                }
+            }
+        }
+
+        console.log(
+            `Trying Gemini fallback model after ${model}...`
+        );
+    }
+
+    throw (
+        lastError ||
+        new Error("All Gemini models failed")
+    );
+}
+
+
+// =====================================================
+// TEXT AI
+// =====================================================
+
+async function askGemini(prompt) {
+
+    return generateWithFallback(
+        prompt,
+        false
+    );
+}
+
+
+// =====================================================
+// IMAGE + TEXT AI
+// Theory handwritten answer checking
 // =====================================================
 
 async function askGeminiWithImage(
     prompt,
     imageBase64
 ) {
-
-    if (!process.env.GEMINI_API_KEY) {
-        throw new Error(
-            "GEMINI_API_KEY is not configured"
-        );
-    }
 
     const cleanImage =
         imageBase64.replace(
@@ -83,43 +183,27 @@ async function askGeminiWithImage(
             : "image/jpeg";
 
 
-    const response =
-        await gemini.models.generateContent({
+    const contents = [
 
-            model: GEMINI_MODEL,
+        {
+            inlineData: {
+                mimeType: mimeType,
+                data: cleanImage
+            }
+        },
 
-            contents: [
+        {
+            text: prompt
+        }
 
-                {
-                    inlineData: {
-                        mimeType: mimeType,
-                        data: cleanImage
-                    }
-                },
-
-                {
-                    text: prompt
-                }
-
-            ]
-
-        });
+    ];
 
 
-    if (
-        !response ||
-        !response.text
-    ) {
-
-        throw new Error(
-            "No response from Gemini vision"
-        );
-
-    }
-
-    return response.text;
+    return generateWithFallback(
+        contents,
+        true
+    );
 }
-
 
 
 // =====================================================
@@ -136,113 +220,81 @@ app.get("/", (req, res) => {
 
         ai: "Gemini",
 
-        model: GEMINI_MODEL
+        model: GEMINI_MODEL,
+
+        fallbackModels:
+            GEMINI_MODELS.slice(1)
 
     });
 
 });
 
 
-
 // =====================================================
 // AI ASSISTANT
 // =====================================================
 
-app.post(
-    "/ask-ai",
-    async (req, res) => {
+app.post("/ask-ai", async (req, res) => {
 
-        try {
+    try {
 
-            const question =
-                req.body.question || "";
+        const question =
+            req.body.question || "";
 
-            const profile =
-                req.body.profile || {};
+        const profile =
+            req.body.profile || {};
 
-            const subject =
-                req.body.subject || "";
+        const subject =
+            req.body.subject || "";
 
-            const topic =
-                req.body.topic || "";
+        const topic =
+            req.body.topic || "";
 
 
-            if (!question.trim()) {
+        // Empty question check
+        if (!question.trim()) {
 
-                return res.status(400).json({
+            return res.status(400).json({
 
-                    error:
-                        "Question is required"
+                error:
+                    "Question is required"
 
-                });
+            });
 
-            }
-
-
-            // =========================================
-            // STUDENT EDUCATION INFORMATION
-            // =========================================
-
-            const education =
-
-                profile.educationLevel === "school"
-
-                    ?
-
-                    `
-School Student
-
-Standard:
-${profile.standard || "Not specified"}
-
-Board:
-${profile.board || "Not specified"}
-
-Medium:
-${profile.medium || "English"}
-
-School:
-${profile.school || "Not specified"}
-`
-
-                    :
-
-                    `
-College / University Student
-
-Course:
-${profile.course || "Not specified"}
-
-Branch:
-${profile.branch || "Not specified"}
-
-Year:
-${profile.collegeYear || "Not specified"}
-
-University:
-${profile.university || "Not specified"}
-
-Medium:
-${profile.medium || "English"}
-
-College:
-${profile.college || "Not specified"}
-`;
+        }
 
 
+        // =================================================
+        // STUDENT EDUCATION
+        // =================================================
 
-            // =========================================
-            // AI PROMPT
-            // =========================================
+        const education =
 
-            const prompt = `
+            profile.educationLevel === "school"
 
-You are SmartLearn AI,
-a personal educational assistant.
+                ?
 
-================================================
-STUDENT PROFILE
-================================================
+                `School, Standard: ${profile.standard || ""},
+Board: ${profile.board || ""}`
+
+                :
+
+                `College/University,
+Course: ${profile.course || ""},
+Branch: ${profile.branch || ""},
+Year: ${profile.collegeYear || ""},
+University: ${profile.university || ""}`;
+
+
+        // =================================================
+        // AI PROMPT
+        // =================================================
+
+        const prompt = `
+
+You are SmartLearn AI, a personal educational assistant.
+
+STUDENT PROFILE:
 
 Name:
 ${profile.name || "Student"}
@@ -250,13 +302,14 @@ ${profile.name || "Student"}
 Education:
 ${education}
 
+Medium:
+${profile.medium || "English"}
+
 Goal:
 ${profile.goal || "General Learning"}
 
 
-================================================
-CURRENT LEARNING
-================================================
+CURRENT LEARNING:
 
 Subject:
 ${subject || "General"}
@@ -265,96 +318,104 @@ Topic:
 ${topic || "General"}
 
 
-================================================
-STUDENT QUESTION
-================================================
+STUDENT QUESTION:
 
 ${question}
 
 
-================================================
-INSTRUCTIONS
-================================================
+IMPORTANT ANSWER RULES:
 
 1. Answer the student's question correctly.
 
-2. Adjust the explanation according to
-   the student's education level.
+2. Adjust the answer according to the student's education level.
 
-3. Use simple language.
+3. Use simple language suitable for the student.
 
-4. Respect the student's selected
-   language/medium whenever practical.
+4. Answer ONLY what the question asks.
 
-5. Give examples when useful.
+5. The answer length must be proportional to the question.
 
-6. Explain step-by-step when required.
+6. If the question asks for a definition, give a concise definition.
 
-7. If the question is educational,
-   teach the concept clearly.
+7. If the question asks for a short answer, give only a short answer.
 
-8. Do not unnecessarily make the
-   answer extremely long.
+8. If the question asks to explain something, give the required explanation but do not add unnecessary information.
 
-9. Do not refuse normal educational
-   questions.
+9. If the question asks for steps, give only the necessary steps.
 
-10. Do not invent facts.
+10. Do NOT automatically add examples.
 
-11. If the student asks a numerical
-    problem, solve it step-by-step.
+11. Do NOT automatically add advantages or disadvantages.
 
-12. If the student asks for a definition,
-    give definition + explanation +
-    suitable example.
+12. Do NOT automatically add summary or conclusion.
 
-13. If the student asks about a concept,
-    explain it at their level.
+13. Do NOT add headings unless they are necessary.
 
-================================================
+14. Do NOT repeat the question.
 
-Give only the answer to the student.
+15. Do NOT start with "Sure", "Of course", "Here is the answer", etc.
+
+16. Do NOT make a simple question into a long answer.
+
+17. Do NOT make the answer shorter if the question clearly requires explanation.
+
+18. Give enough information to completely answer the question.
+
+19. Respect the student's selected medium when practical.
+
+20. Do not refuse a normal educational question.
+
+21. Do not invent facts.
+
+22. Return ONLY the final answer.
+
+FINAL RULE:
+
+Give the student exactly the amount of information required to correctly answer the question.
 
 `;
 
 
+        // =================================================
+        // GET AI ANSWER
+        // =================================================
 
-            const answer =
-                await askGemini(prompt);
-
-
-            res.json({
-
-                answer: answer
-
-            });
-
-        }
+        const answer =
+            await askGemini(prompt);
 
 
-        catch (error) {
+        // =================================================
+        // SEND ANSWER
+        // =================================================
 
-            console.error(
-                "AI Assistant Error:",
-                error
-            );
+        res.json({
+
+            answer: answer
+
+        });
 
 
-            res.status(500).json({
+    } catch (error) {
 
-                error:
-                    "AI server error",
+        console.error(
+            "AI Assistant Error:",
+            error
+        );
 
-                details:
-                    error.message
 
-            });
+        res.status(500).json({
 
-        }
+            error:
+                "AI server error",
+
+            details:
+                error.message
+
+        });
 
     }
-);
 
+});
 
 
 // =====================================================
@@ -389,10 +450,9 @@ app.post(
                 req.body.topic || "";
 
 
-
-            // =========================================
-            // VALIDATION
-            // =========================================
+            // =================================================
+            // QUESTION CHECK
+            // =================================================
 
             if (!question) {
 
@@ -405,6 +465,10 @@ app.post(
 
             }
 
+
+            // =================================================
+            // ANSWER CHECK
+            // =================================================
 
             if (
                 !imageBase64 &&
@@ -421,10 +485,9 @@ app.post(
             }
 
 
-
-            // =========================================
-            // EDUCATION INFORMATION
-            // =========================================
+            // =================================================
+            // STUDENT EDUCATION
+            // =================================================
 
             const education =
 
@@ -454,21 +517,20 @@ ${profile.school || "Not specified"}
 College Student
 
 Course:
-${profile.course || "Not specified"}
+${profile.course || ""}
 
 Branch:
-${profile.branch || "Not specified"}
+${profile.branch || ""}
 
 Year:
-${profile.collegeYear || "Not specified"}
+${profile.collegeYear || ""}
 
 University:
-${profile.university || "Not specified"}
+${profile.university || ""}
 
 Medium:
 ${profile.medium || "English"}
 `;
-
 
 
             // =================================================
@@ -477,43 +539,32 @@ ${profile.medium || "English"}
 
             if (imageBase64) {
 
-
                 const visionPrompt = `
 
-You are SmartLearn AI,
-an educational theory-answer evaluator.
+You are SmartLearn AI, an educational answer evaluator.
 
-================================================
-STUDENT INFORMATION
-================================================
+
+STUDENT INFORMATION:
 
 ${education}
 
 
-================================================
-SUBJECT
-================================================
+SUBJECT:
 
 ${subject}
 
 
-================================================
-TOPIC
-================================================
+TOPIC:
 
 ${topic}
 
 
-================================================
-QUESTION
-================================================
+QUESTION:
 
 ${question}
 
 
-================================================
-MODEL / EXPECTED ANSWER
-================================================
+MODEL / EXPECTED ANSWER:
 
 ${
     expectedAnswer ||
@@ -521,14 +572,10 @@ ${
 }
 
 
-================================================
-STUDENT ANSWER IMAGE
-================================================
-
-The attached image contains
-the student's handwritten answer.
+The attached image contains the student's handwritten answer.
 
 Read the handwritten answer carefully.
+
 
 Evaluate the student's answer based on:
 
@@ -536,53 +583,25 @@ Evaluate the student's answer based on:
 - important concepts
 - key points
 - completeness
-- understanding
-- relevance to the question
+- understanding of the topic
+- whether the answer actually addresses the question
 
 
-================================================
-IMPORTANT RULES
-================================================
+IMPORTANT:
 
-1. Do NOT judge handwriting style.
+Do NOT judge handwriting style.
 
-2. Do NOT give marks simply based
-   on answer length.
+Do NOT give marks only based on answer length.
 
-3. Grammar mistakes should not be
-   heavily penalized if the concept
-   is correct.
+Grammar mistakes should not be heavily penalized if the concept is correct.
 
-4. Give partial marks when appropriate.
-
-5. Check whether the student actually
-   answered the question.
-
-6. Identify correct concepts.
-
-7. Identify missing concepts.
-
-8. Identify incorrect concepts.
-
-9. Give useful improvement feedback.
+Give partial marks when appropriate.
 
 
-================================================
-MARKING
-================================================
-
-TOTAL MARKS = 5
+TOTAL MARKS = 5.
 
 
-================================================
-OUTPUT
-================================================
-
-Return ONLY valid JSON.
-
-Do not write Markdown.
-
-Use exactly this structure:
+Return ONLY valid JSON in exactly this format:
 
 {
     "marks": 0,
@@ -595,28 +614,16 @@ Use exactly this structure:
 }
 
 
-IMPORTANT:
+Rules:
 
-marks must be between 0 and 5.
-
-correctPoints must contain
-the concepts correctly written
-by the student.
-
-missingPoints must contain
-important concepts that are missing.
-
-wrongPoints must contain
-incorrect concepts or statements.
-
-feedback must explain the
-student's performance briefly.
-
-improvement must give practical
-suggestions for improvement.
+- marks must be a number from 0 to 5.
+- correctPoints must contain correctly written points.
+- missingPoints must contain important missing points.
+- wrongPoints must contain incorrect concepts.
+- feedback should briefly explain the result.
+- improvement should give practical advice.
 
 `;
-
 
 
                 const raw =
@@ -625,11 +632,6 @@ suggestions for improvement.
                         imageBase64
                     );
 
-
-
-                // =====================================
-                // CLEAN AI JSON
-                // =====================================
 
                 const cleaned =
                     raw
@@ -644,9 +646,7 @@ suggestions for improvement.
                         .trim();
 
 
-
                 let result;
-
 
 
                 try {
@@ -654,9 +654,7 @@ suggestions for improvement.
                     result =
                         JSON.parse(cleaned);
 
-                }
-
-                catch (error) {
+                } catch (error) {
 
                     console.log(
                         "Gemini vision returned non-JSON:",
@@ -676,8 +674,7 @@ suggestions for improvement.
 
                         wrongPoints: [],
 
-                        feedback:
-                            raw,
+                        feedback: raw,
 
                         improvement:
                             "Try to include all important points from the topic."
@@ -686,11 +683,6 @@ suggestions for improvement.
 
                 }
 
-
-
-                // =====================================
-                // SEND RESULT
-                // =====================================
 
                 return res.json({
 
@@ -711,53 +703,34 @@ suggestions for improvement.
                     totalMarks: 5,
 
                     correctPoints:
-
                         Array.isArray(
                             result.correctPoints
                         )
-
                             ?
-
                             result.correctPoints
-
                             :
-
                             [],
-
 
                     missingPoints:
-
                         Array.isArray(
                             result.missingPoints
                         )
-
                             ?
-
                             result.missingPoints
-
                             :
-
                             [],
-
 
                     wrongPoints:
-
                         Array.isArray(
                             result.wrongPoints
                         )
-
                             ?
-
                             result.wrongPoints
-
                             :
-
                             [],
-
 
                     feedback:
                         result.feedback || "",
-
 
                     improvement:
                         result.improvement || ""
@@ -767,47 +740,36 @@ suggestions for improvement.
             }
 
 
-
             // =================================================
-            // TYPED ANSWER CHECKING
+            // TYPED THEORY ANSWER CHECKING
             // =================================================
 
             const prompt = `
 
-You are SmartLearn AI,
-evaluating a student's theory answer.
+You are SmartLearn AI evaluating a student's theory answer.
 
-================================================
-STUDENT EDUCATION
-================================================
+
+STUDENT EDUCATION:
 
 ${education}
 
 
-================================================
-SUBJECT
-================================================
+SUBJECT:
 
 ${subject}
 
 
-================================================
-TOPIC
-================================================
+TOPIC:
 
 ${topic}
 
 
-================================================
-QUESTION
-================================================
+QUESTION:
 
 ${question}
 
 
-================================================
-EXPECTED ANSWER
-================================================
+EXPECTED ANSWER:
 
 ${
     expectedAnswer ||
@@ -815,31 +777,23 @@ ${
 }
 
 
-================================================
-STUDENT ANSWER
-================================================
+STUDENT ANSWER:
 
 ${studentAnswer}
 
 
-================================================
-TASK
-================================================
+TASK:
 
 Evaluate the student's answer fairly.
 
 
-================================================
-RULES
-================================================
+RULES:
 
 1. Give a score from 0 to 5.
 
-2. Award partial marks when
-   some concepts are correct.
+2. Award partial marks when some concepts are correct.
 
-3. Do not judge grammar harshly
-   if the concept is correct.
+3. Do not judge grammar harshly if the concept is correct.
 
 4. Identify correct points.
 
@@ -849,19 +803,10 @@ RULES
 
 7. Give simple feedback.
 
-8. Give practical improvement
-   suggestions.
+8. Give one improvement suggestion.
 
 
-================================================
-OUTPUT
-================================================
-
-Return ONLY valid JSON.
-
-Do not write Markdown.
-
-Use exactly:
+Return ONLY valid JSON:
 
 {
     "marks": 0,
@@ -876,10 +821,8 @@ Use exactly:
 `;
 
 
-
             const raw =
                 await askGemini(prompt);
-
 
 
             const cleaned =
@@ -895,9 +838,7 @@ Use exactly:
                     .trim();
 
 
-
             let result;
-
 
 
             try {
@@ -905,9 +846,7 @@ Use exactly:
                 result =
                     JSON.parse(cleaned);
 
-            }
-
-            catch (error) {
+            } catch (error) {
 
                 result = {
 
@@ -921,8 +860,7 @@ Use exactly:
 
                     wrongPoints: [],
 
-                    feedback:
-                        raw,
+                    feedback: raw,
 
                     improvement:
                         "Try to include all important points."
@@ -931,11 +869,6 @@ Use exactly:
 
             }
 
-
-
-            // =====================================
-            // SEND RESULT
-            // =====================================
 
             res.json({
 
@@ -956,63 +889,42 @@ Use exactly:
                 totalMarks: 5,
 
                 correctPoints:
-
                     Array.isArray(
                         result.correctPoints
                     )
-
                         ?
-
                         result.correctPoints
-
                         :
-
                         [],
-
 
                 missingPoints:
-
                     Array.isArray(
                         result.missingPoints
                     )
-
                         ?
-
                         result.missingPoints
-
                         :
-
                         [],
-
 
                 wrongPoints:
-
                     Array.isArray(
                         result.wrongPoints
                     )
-
                         ?
-
                         result.wrongPoints
-
                         :
-
                         [],
-
 
                 feedback:
                     result.feedback || "",
-
 
                 improvement:
                     result.improvement || ""
 
             });
 
-        }
 
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Theory checking error:",
@@ -1036,7 +948,6 @@ Use exactly:
 );
 
 
-
 // =====================================================
 // START SERVER
 // =====================================================
@@ -1056,6 +967,10 @@ app.listen(
 
         console.log(
             `Gemini Model: ${GEMINI_MODEL}`
+        );
+
+        console.log(
+            `Fallback Models: ${GEMINI_MODELS.slice(1).join(", ")}`
         );
 
     }
