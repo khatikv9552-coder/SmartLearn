@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartLearn - Learning</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: #ffffff;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .back-btn {
+            border: none;
+            background: #eef2ff;
+            color: #2563eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* MAIN */
+        .container {
+            width: 86%;
+            max-width: 1100px;
+            margin: 35px auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .header p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .student-info {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            color: #475569;
+        }
+
+        /* AI RECOMMENDATION */
+        .ai-box {
+            background: #eef6ff;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .ai-box h3 {
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .ai-box p {
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* TOPICS */
+        .topics-title {
+            margin-bottom: 18px;
+            font-size: 24px;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .topic-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
+            transition: 0.2s;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .topic-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .topic-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 45px;
+        }
+
+        .topic-status {
+            display: inline-block;
+            margin: 15px 0;
+            padding: 5px 10px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .start-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* EMPTY */
+        .empty {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            color: #64748b;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: 92%;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            nav {
+                padding: 15px 4%;
+            }
+
+            .logo {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">SmartLearn</div>
+
+        <button class="back-btn" onclick="goDashboard()">
+            ← Dashboard
+        </button>
+    </nav>
+
+
+    <!-- MAIN -->
+    <div class="container">
+
+        <div class="header">
+
+            <h1 id="subjectTitle">
+                Learning
+            </h1>
+
+            <p>
+                AI-powered personalized learning designed according
+                to your education level, course, goal and performance.
+            </p>
+
+            <div class="student-info" id="studentInfo">
+                Loading student information...
+            </div>
+
+        </div>
+
+
+        <!-- AI RECOMMENDATION -->
+        <div class="ai-box">
+
+            <h3>🤖 AI Learning Recommendation</h3>
+
+            <p id="aiRecommendation">
+                AI is analyzing your learning profile...
+            </p>
+
+        </div>
+
+
+        <!-- TOPICS -->
+        <h2 class="topics-title">
+            📚 Topics
+        </h2>
+
+        <div class="topic-grid" id="topicContainer">
+        </div>
+
+    </div>
+
+
+    <footer>
+        © 2026 SmartLearn — AI-Powered Personal Learning System
+    </footer>
+
+
+    <script>
+
+      
+        /* --------------------------------
+           GET STUDENT PROFILE
+        -------------------------------- */
+
+        const profileData =
+            localStorage.getItem("studentProfile");
+
+        if (!profileData) {
+
+            alert("Please complete your profile first.");
+
+            window.location.href = "student-profile.html";
+
+        }
+
+        const profile =
+            JSON.parse(profileData);
+
+
+        /* --------------------------------
+           SUBJECT
+        -------------------------------- */
+
+        const selectedSubject =
+            localStorage.getItem("selectedSubject");
+
+
+        if (!selectedSubject) {
+
+            alert("Please select a subject from Dashboard.");
+
+            window.location.href = "dashboard.html";
+
+        }
+
+
+        document.getElementById("subjectTitle").innerText =
+            selectedSubject;
+
+
+        /* --------------------------------
+           STUDENT INFO
+        -------------------------------- */
+
+        let educationText = "";
+
+        if (profile.educationLevel === "school") {
+
+            educationText =
+                profile.standard +
+                " | " +
+                profile.board +
+                " | " +
+                profile.medium;
+
+        } else {
+
+            educationText =
+                profile.course +
+                " | " +
+                profile.branch +
+                " | " +
+                profile.collegeYear;
+
+        }
+
+
+        document.getElementById("studentInfo").innerText =
+            "Student: " +
+            profile.name +
+            "  •  " +
+            educationText +
+            "  •  Goal: " +
+            profile.goal;
+
+
+        /* --------------------------------
+           LEARNING DATA
+        -------------------------------- */
+
+        const learningData = {
+
+            /* =========================
+               B.TECH CSE / IT
+            ========================= */
+
+            "Data Structures & Algorithms": [
+
+                {
+                    name: "Arrays",
+                    description:
+                        "Learn arrays, indexing, traversal, insertion, deletion and searching."
+                },
+
+                {
+                    name: "Linked Lists",
+                    description:
+                        "Understand nodes, pointers, insertion, deletion and different types of linked lists."
+                },
+
+                {
+                    name: "Stacks",
+                    description:
+                        "Learn LIFO structure, stack operations and real-world applications."
+                },
+
+                {
+                    name: "Queues",
+                    description:
+                        "Understand FIFO structure, enqueue, dequeue and different queue types."
+                },
+
+                {
+                    name: "Trees",
+                    description:
+                        "Learn binary trees, BST, traversal techniques and tree applications."
+                },
+
+                {
+                    name: "Graphs",
+                    description:
+                        "Understand vertices, edges, BFS, DFS and graph representations."
+                },
+
+                {
+                    name: "Searching & Sorting",
+                    description:
+                        "Learn linear search, binary search and important sorting algorithms."
+                },
+
+                {
+                    name: "Time Complexity",
+                    description:
+                        "Understand Big-O notation and analyze algorithm efficiency."
+                }
+
+            ],
+
+
+            "OOP": [
+
+                {
+                    name: "Classes & Objects",
+                    description:
+                        "Understand classes, objects, attributes and methods."
+                },
+
+                {
+                    name: "Constructors",
+                    description:
+                        "Learn constructors and object initialization."
+                },
+
+                {
+                    name: "Encapsulation",
+                    description:
+                        "Understand data hiding and access modifiers."
+                },
+
+                {
+                    name: "Inheritance",
+                    description:
+                        "Learn different types of inheritance and code reusability."
+                },
+
+                {
+                    name: "Polymorphism",
+                    description:
+                        "Understand method overloading and method overriding."
+                },
+
+                {
+                    name: "Abstraction",
+                    description:
+                        "Learn abstraction and how unnecessary implementation details are hidden."
+                },
+
+                {
+                    name: "Interfaces",
+                    description:
+                        "Understand interfaces and their role in object-oriented programming."
+                }
+
+            ],
+
+
+            "DBMS": [
+
+                {
+                    name: "ER Model",
+                    description:
+                        "Learn entities, attributes, relationships and ER diagrams."
+                },
+
+                {
+                    name: "Relational Model",
+                    description:
+                        "Understand tables, rows, columns and relational databases."
+                },
+
+                {
+                    name: "SQL",
+                    description:
+                        "Learn SELECT, INSERT, UPDATE, DELETE and other SQL operations."
+                },
+
+                {
+                    name: "Normalization",
+                    description:
+                        "Understand 1NF, 2NF, 3NF and database normalization."
+                },
+
+                {
+                    name: "Keys & Constraints",
+                    description:
+                        "Learn primary key, foreign key, candidate key and constraints."
+                },
+
+                {
+                    name: "Transactions",
+                    description:
+                        "Understand database transactions and ACID properties."
+                },
+
+                {
+                    name: "Concurrency Control",
+                    description:
+                        "Learn how databases handle multiple transactions simultaneously."
+                }
+
+            ],
+
+
+            "OS": [
+
+                {
+                    name: "Processes",
+                    description:
+                        "Learn process states, process creation and process management."
+                },
+
+                {
+                    name: "Threads",
+                    description:
+                        "Understand threads and multithreading."
+                },
+
+                {
+                    name: "CPU Scheduling",
+                    description:
+                        "Learn FCFS, SJF, Round Robin and other scheduling algorithms."
+                },
+
+                {
+                    name: "Deadlocks",
+                    description:
+                        "Understand deadlock conditions, prevention and avoidance."
+                },
+
+                {
+                    name: "Memory Management",
+                    description:
+                        "Learn memory allocation and memory management techniques."
+                },
+
+                {
+                    name: "Virtual Memory",
+                    description:
+                        "Understand paging, page faults and virtual memory."
+                },
+
+                {
+                    name: "File Systems",
+                    description:
+                        "Learn file organization, directories and file management."
+                }
+
+            ],
+
+
+            "CN": [
+
+                {
+                    name: "OSI Model",
+                    description:
+                        "Learn all seven layers of the OSI networking model."
+                },
+
+                {
+                    name: "TCP/IP",
+                    description:
+                        "Understand TCP/IP architecture and network communication."
+                },
+
+                {
+                    name: "IP Addressing",
+                    description:
+                        "Learn IPv4, IPv6 and subnetting fundamentals."
+                },
+
+                {
+                    name: "Routing",
+                    description:
+                        "Understand how packets travel between different networks."
+                },
+
+                {
+                    name: "TCP & UDP",
+                    description:
+                        "Compare TCP and UDP protocols and their applications."
+                },
+
+                {
+                    name: "DNS",
+                    description:
+                        "Learn how domain names are converted into IP addresses."
+                },
+
+                {
+                    name: "HTTP & HTTPS",
+                    description:
+                        "Understand web communication and secure HTTP."
+                }
+
+            ],
+
+
+            /* =========================
+               JEE
+            ========================= */
+
+            "Physics": [
+
+                {
+                    name: "Mechanics",
+                    description:
+                        "Learn motion, force, work, energy and momentum."
+                },
+
+                {
+                    name: "Electrostatics",
+                    description:
+                        "Understand electric charge, field and potential."
+                },
+
+                {
+                    name: "Current Electricity",
+                    description:
+                        "Learn current, resistance, circuits and Ohm's law."
+                },
+
+                {
+                    name: "Optics",
+                    description:
+                        "Understand reflection, refraction and optical instruments."
+                }
+
+            ],
+
+
+            "Chemistry": [
+
+                {
+                    name: "Physical Chemistry",
+                    description:
+                        "Learn mole concept, thermodynamics and chemical equilibrium."
+                },
+
+                {
+                    name: "Organic Chemistry",
+                    description:
+                        "Understand hydrocarbons, functional groups and reactions."
+                },
+
+                {
+                    name: "Inorganic Chemistry",
+                    description:
+                        "Learn periodic trends, coordination compounds and reactions."
+                }
+
+            ],
+
+
+            "Mathematics": [
+
+                {
+                    name: "Algebra",
+                    description:
+                        "Learn equations, sequences, series and algebraic concepts."
+                },
+
+                {
+                    name: "Calculus",
+                    description:
+                        "Understand limits, differentiation and integration."
+                },
+
+                {
+                    name: "Coordinate Geometry",
+                    description:
+                        "Learn lines, circles, parabola and coordinate concepts."
+                },
+
+                {
+                    name: "Probability",
+                    description:
+                        "Understand probability and important problem-solving techniques."
+                }
+
+            ],
+
+
+            /* =========================
+               NEET
+            ========================= */
+
+            "Biology": [
+
+                {
+                    name: "Cell Biology",
+                    description:
+                        "Learn cell structure, organelles and cell functions."
+                },
+
+                {
+                    name: "Human Physiology",
+                    description:
+                        "Understand major systems of the human body."
+                },
+
+                {
+                    name: "Genetics",
+                    description:
+                        "Learn genes, inheritance and genetic principles."
+                },
+
+                {
+                    name: "Ecology",
+                    description:
+                        "Understand ecosystems, populations and biodiversity."
+                }
+
+            ],
+
+
+            /* =========================
+               SCHOOL
+            ========================= */
+
+            "School Mathematics": [
+
+                {
+                    name: "Number System",
+                    description:
+                        "Learn numbers, operations and number properties."
+                },
+
+                {
+                    name: "Algebra",
+                    description:
+                        "Understand variables, expressions and equations."
+                },
+
+                {
+                    name: "Geometry",
+                    description:
+                        "Learn shapes, angles, lines and geometric concepts."
+                },
+
+                {
+                    name: "Mensuration",
+                    description:
+                        "Learn area, perimeter and volume."
+                }
+
+            ],
+
+
+            "School Science": [
+
+                {
+                    name: "Physics Basics",
+                    description:
+                        "Learn basic concepts of force, motion, energy and light."
+                },
+
+                {
+                    name: "Chemistry Basics",
+                    description:
+                        "Understand matter, elements, compounds and reactions."
+                },
+
+                {
+                    name: "Biology Basics",
+                    description:
+                        "Learn cells, organisms and basic life processes."
+                }
+
+            ],
+
+
+            "English": [
+
+                {
+                    name: "Grammar",
+                    description:
+                        "Learn grammar rules and sentence formation."
+                },
+
+                {
+                    name: "Vocabulary",
+                    description:
+                        "Improve vocabulary and word usage."
+                },
+
+                {
+                    name: "Reading Comprehension",
+                    description:
+                        "Develop reading and comprehension skills."
+                }
+
+            ],
+
+
+            /* =========================
+               SOFTWARE DEVELOPER
+            ========================= */
+
+            "Programming": [
+
+                {
+                    name: "Programming Fundamentals",
+                    description:
+                        "Learn variables, conditions, loops and functions."
+                },
+
+                {
+                    name: "Object Oriented Programming",
+                    description:
+                        "Understand classes, objects, inheritance and polymorphism."
+                },
+
+                {
+                    name: "Problem Solving",
+                    description:
+                        "Develop logical thinking and programming problem-solving skills."
+                }
+
+            ],
+
+
+            "Web Development": [
+
+                {
+                    name: "HTML",
+                    description:
+                        "Learn webpage structure and semantic HTML."
+                },
+
+                {
+                    name: "CSS",
+                    description:
+                        "Learn styling, layouts and responsive design."
+                },
+
+                {
+                    name: "JavaScript",
+                    description:
+                        "Learn variables, functions, events and DOM manipulation."
+                }
+
+            ]
+
+        };
+
+
+        /* --------------------------------
+           LEARNING MODE BY EDUCATION LEVEL
+    
+           5th to 10th Standard:
+           1. Notes
+           2. Problem Solve
+           3. Theory Question
+    
+           11th and above:
+           1. Problem Solving
+           2. Notes
+        -------------------------------- */
+
+        const standardNumber = parseInt(profile.standard);
+
+        const isSchool5To10 =
+            profile.educationLevel === "school" &&
+            !isNaN(standardNumber) &&
+            standardNumber >= 5 &&
+            standardNumber <= 10;
+
+        let topics = [];
+
+        if (isSchool5To10) {
+
+            topics = [
+                {
+                    name: "Notes",
+                    description:
+                        "Read personalized notes, important definitions, examples and key points for your subject."
+                },
+                {
+                    name: "Problem Solve",
+                    description:
+                        "Practice problems related to your subject and improve your problem-solving skills."
+                },
+                {
+                    name: "Theory Question",
+                    description:
+                        "Write descriptive theory answers on paper. Upload your handwritten answer and get AI evaluation."
+                }
+            ];
+
+        } else {
+
+            topics = [
+                {
+                    name: "Problem Solving",
+                    description:
+                        "Practice subject-related problems and improve your problem-solving skills."
+                },
+                {
+                    name: "Notes",
+                    description:
+                        "Study personalized notes, concepts, examples and important points."
+                }
+            ];
+
+        }
+
+
+        /* --------------------------------
+           DISPLAY TOPICS
+        -------------------------------- */
+
+        const topicContainer =
+            document.getElementById("topicContainer");
+
+
+        topics.forEach(function (topic, index) {
+
+            const card =
+                document.createElement("div");
+
+            card.className = "topic-card";
+
+
+            card.innerHTML = `
+
+            <h3>${topic.name}</h3>
+
+            <p>
+                ${topic.description}
+            </p>
+
+            <span class="topic-status">
+                Topic ${index + 1}
+            </span>
+
+            <button
+                class="start-btn"
+                onclick="startTopic('${topic.name.replace(/'/g, "\\'")}')">
+
+                Start Learning →
+
+            </button>
+
+        `;
+
+
+            topicContainer.appendChild(card);
+
+        });
+
+
+        /* --------------------------------
+           AI RECOMMENDATION
+        -------------------------------- */
+
+        const practiceData =
+            localStorage.getItem("practiceResult");
+
+
+        if (practiceData) {
+
+            const result =
+                JSON.parse(practiceData);
+
+
+            if (
+                result.weakTopic &&
+                result.topic
+            ) {
+
+                document.getElementById(
+                    "aiRecommendation"
+                ).innerText =
+                    "AI detected that you need more practice in " +
+                    result.topic +
+                    ". Start with the topic again and practice related questions before moving to a harder level.";
+
+            } else {
+
+                document.getElementById(
+                    "aiRecommendation"
+                ).innerText =
+                    "Your recent performance is good. Continue learning and try the next level of questions.";
+
+            }
+
+        } else {
+
+            document.getElementById(
+                "aiRecommendation"
+            ).innerText =
+                "Start learning a topic and complete its practice quiz. SmartLearn will analyze your performance and identify topics that need more practice.";
+
+        }
+
+
+        /* --------------------------------
+           START TOPIC
+        -------------------------------- */
+
+        function startTopic(topicName) {
+
+            localStorage.setItem(
+                "selectedSubject",
+                selectedSubject
+            );
+
+            localStorage.setItem(
+                "selectedTopic",
+                topicName
+            );
+
+            /* --------------------------------
+               NOTES
+            -------------------------------- */
+            if (topicName === "Notes") {
+
+                localStorage.setItem(
+                    "learningMode",
+                    "notes"
+                );
+
+                // Notes first open the Notes Personalization/Login page.
+                // After the student submits Class/Branch, Goal, Board/Course
+                // and other details, that page redirects to notes.html.
+                window.location.href = "notes-login.html";
+                return;
+            }
+
+            /* --------------------------------
+               THEORY QUESTION
+               Only for 5th to 10th
+            -------------------------------- */
+            if (topicName === "Theory Question") {
+
+                localStorage.setItem(
+                    "learningMode",
+                    "theory"
+                );
+
+                window.location.href =
+                    "topic-learning.html";
+
+                return;
+            }
+
+            /* --------------------------------
+               PROBLEM SOLVING
+            -------------------------------- */
+            localStorage.setItem(
+                "learningMode",
+                "problem"
+            );
+
+            window.location.href =
+                "topic-learning.html";
+
+        }
+
+
+        /* --------------------------------
+           DASHBOARD
+        -------------------------------- */
+
+        function goDashboard() {
+
+            window.location.href =
+                "dashboard.html";
+
+        }
+
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "smartlearn",
+  "version": "1.0.0",
+  "description": "SmartLearn - AI Powered Personal Learning System",
+  "main": "backage/server.js",
+  "scripts": {
+    "start": "node backage/server.js"
+  },
+  "keywords": [
+    "smartlearn",
+    "education",
+    "ai",
+    "learning"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

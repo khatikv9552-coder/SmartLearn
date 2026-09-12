@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartLearn - Topic Learning</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .navbar {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .back-btn {
+            border: none;
+            background: #eef2ff;
+            color: #2563eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 86%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .topic-header {
+            margin-top: 35px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            padding: 35px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+        }
+
+        .level-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .topic-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .topic-header p {
+            line-height: 1.6;
+        }
+
+        .learning-card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .learning-card h2 {
+            margin-bottom: 15px;
+            color: #2563eb;
+        }
+
+        .learning-card h3 {
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        .learning-card p {
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .learning-card ul {
+            margin-left: 22px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .example {
+            background: #f1f5f9;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+
+        .quiz-section {
+            margin-bottom: 40px;
+        }
+
+        .quiz-section h2 {
+            margin-bottom: 8px;
+        }
+
+        .quiz-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .quiz-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .quiz-card h3 {
+            margin-bottom: 8px;
+        }
+
+        .quiz-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .quiz-btn {
+            width: 100%;
+            border: none;
+            padding: 11px;
+            background: #2563eb;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .quiz-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .quiz-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .completed {
+            color: #15803d;
+        }
+
+        .locked {
+            opacity: 0.65;
+        }
+
+        .final-card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            margin-bottom: 50px;
+            border: 2px solid #2563eb;
+        }
+
+        .final-card h2 {
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+
+        .final-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .final-score {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .final-btn {
+            border: none;
+            background: #16a34a;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .final-btn:hover {
+            background: #15803d;
+        }
+
+        footer {
+            background: #111827;
+            color: #bbb;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media(max-width: 700px) {
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .topic-header h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SmartLearn
+        </div>
+
+        <button class="back-btn" onclick="goBackToTopics()">
+            ← Back to Topics
+        </button>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- TOPIC HEADER -->
+
+        <section class="topic-header">
+
+            <span class="level-tag" id="levelTag">
+                Level 1 • Foundation
+            </span>
+
+            <h1 id="topicTitle">
+                Topic
+            </h1>
+
+            <p id="topicDescription">
+                Personalized learning content.
+            </p>
+
+        </section>
+
+
+        <!-- STUDENT INFO -->
+
+        <section class="learning-card">
+
+            <h2>👨‍🎓 Your Learning Profile</h2>
+
+            <p>
+                <strong>Name:</strong>
+                <span id="studentName">Student</span>
+            </p>
+
+            <p>
+                <strong>Subject:</strong>
+                <span id="subjectName">-</span>
+            </p>
+
+            <p>
+                <strong>Goal:</strong>
+                <span id="goalName">-</span>
+            </p>
+
+        </section>
+
+
+        <!-- LEARNING CONTENT -->
+
+        <section class="learning-card">
+
+            <h2>📚 Learn This Topic</h2>
+
+            <div id="learningContent">
+
+                <h3>Introduction</h3>
+
+                <p>
+                    Start learning the important concepts of this topic.
+                    SmartLearn provides learning material according to
+                    your educational level and goal.
+                </p>
+
+                <h3>Key Concepts</h3>
+
+                <ul>
+                    <li>Understand the basic concept.</li>
+                    <li>Learn important definitions.</li>
+                    <li>Study practical examples.</li>
+                    <li>Practice questions after learning.</li>
+                </ul>
+
+                <div class="example">
+
+                    <strong>💡 SmartLearn Tip:</strong>
+
+                    <p>
+                        First understand the concept properly,
+                        then attempt the practice quiz.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PRACTICE QUIZZES -->
+
+        <section class="quiz-section">
+
+            <h2>📝 Practice Quizzes</h2>
+
+            <p class="quiz-subtitle">
+                Complete all 10 quizzes. Your next quizzes become
+                adaptive based on your previous performance.
+            </p>
+
+            <div class="quiz-grid" id="quizContainer"></div>
+
+        </section>
+
+
+        <!-- FINAL QUIZ -->
+
+        <section class="final-card">
+
+            <h2>🏆 Final Quiz</h2>
+
+            <p>
+                The Final Quiz checks your overall understanding of
+                everything learned in this topic.
+            </p>
+
+            <p>
+                <strong>Passing Score:</strong> 70%
+            </p>
+
+            <p>
+                <strong id="finalQuestionInfo">
+                    Final Quiz Questions: 15
+                </strong>
+            </p>
+
+            <div class="final-score" id="finalScore">
+                Final Quiz is locked.
+            </div>
+
+            <button
+                class="final-btn"
+                id="finalButton"
+                onclick="startFinalQuiz()"
+                disabled>
+
+                🔒 Complete 10 Practice Quizzes First
+
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        © 2026 SmartLearn — AI-Powered Personal Learning System
+    </footer>
+
+
+    <script>
+
+        // ==========================================
+        // LOAD PROFILE
+        // ==========================================
+
+        const profileData =
+            localStorage.getItem("studentProfile");
+
+        if (!profileData) {
+
+            alert("Please complete your profile first.");
+
+            window.location.href =
+                "student-profile.html";
+
+        }
+
+        const profile =
+            JSON.parse(profileData);
+
+
+        // ==========================================
+        // SELECTED DATA
+        // ==========================================
+
+        const selectedSubject =
+            localStorage.getItem("selectedSubject");
+
+        const selectedTopic =
+            localStorage.getItem("selectedTopic");
+
+        const selectedLevel =
+            Number(
+                localStorage.getItem("selectedLevel") || 1
+            );
+
+
+        if (!selectedSubject || !selectedTopic) {
+
+            alert("Please select a topic first.");
+
+            window.location.href =
+                "learning.html";
+
+        }
+
+
+        // ==========================================
+        // STUDENT ID
+        // ==========================================
+
+        const studentId =
+            profile.email ||
+            profile.mobile ||
+            profile.name ||
+            "student";
+
+
+        // ==========================================
+        // QUESTION COUNT
+        // ==========================================
+
+        function isSchoolStudent() {
+
+            if (!profile.standard) {
+                return false;
+            }
+
+            const standard =
+                parseInt(profile.standard);
+
+            return !isNaN(standard) &&
+                   standard <= 10;
+
+        }
+
+
+        const practiceQuestionCount =
+            isSchoolStudent() ? 20 : 40;
+
+
+        const finalQuestionCount =
+            isSchoolStudent() ? 35 : 70;
+
+
+        document.getElementById(
+            "finalQuestionInfo"
+        ).textContent =
+            "Final Quiz Questions: " +
+            finalQuestionCount;
+
+
+        // ==========================================
+        // DISPLAY PROFILE
+        // ==========================================
+
+        document.getElementById(
+            "studentName"
+        ).textContent =
+            profile.name || "Student";
+
+
+        document.getElementById(
+            "subjectName"
+        ).textContent =
+            selectedSubject;
+
+
+        document.getElementById(
+            "goalName"
+        ).textContent =
+            profile.goal || "Learning";
+
+
+        // ==========================================
+        // LEVEL DISPLAY
+        // ==========================================
+
+        if (selectedLevel === 2) {
+
+            document.getElementById(
+                "levelTag"
+            ).textContent =
+                "Level 2 • Advanced";
+
+            document.getElementById(
+                "topicDescription"
+            ).textContent =
+                "Advanced learning content designed to improve deeper understanding and problem-solving.";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "levelTag"
+            ).textContent =
+                "Level 1 • Foundation";
+
+            document.getElementById(
+                "topicDescription"
+            ).textContent =
+                "Build a strong foundation with personalized learning and practice.";
+
+        }
+
+
+        document.getElementById(
+            "topicTitle"
+        ).textContent =
+            selectedTopic;
+
+
+        // ==========================================
+        // PROGRESS STORAGE
+        // ==========================================
+
+        const progressKey =
+            "smartLearnProgress_" +
+            studentId + "_" +
+            selectedSubject + "_" +
+            selectedTopic;
+
+
+        let progressData =
+            localStorage.getItem(progressKey);
+
+
+        let progress;
+
+
+        if (progressData) {
+
+            try {
+
+                progress =
+                    JSON.parse(progressData);
+
+            }
+
+            catch {
+
+                progress = {
+                    quizzes: {},
+                    finalAttempts: [],
+                    finalScore: null,
+                    completed: false
+                };
+
+            }
+
+        }
+
+        else {
+
+            progress = {
+
+                quizzes: {},
+
+                finalAttempts: [],
+
+                finalScore: null,
+
+                completed: false
+
+            };
+
+        }
+
+
+        // ==========================================
+        // SAVE PROGRESS
+        // ==========================================
+
+        function saveProgress() {
+
+            localStorage.setItem(
+                progressKey,
+                JSON.stringify(progress)
+            );
+
+        }
+
+
+        // ==========================================
+        // LEARNING CONTENT
+        // ==========================================
+
+        const content = {
+
+            "Arrays": {
+
+                title: "Arrays",
+
+                intro:
+                    "An array is a data structure used to store multiple values of the same type in a continuous memory location.",
+
+                concepts: [
+                    "Array stores elements using indexes.",
+                    "Index usually starts from 0.",
+                    "Accessing an element by index is fast.",
+                    "Arrays can be used for searching and sorting."
+                ],
+
+                example:
+                    "Example: marks = [80, 75, 90, 65]. The value at index 0 is 80."
+
+            },
+
+
+            "Linked Lists": {
+
+                title: "Linked Lists",
+
+                intro:
+                    "A linked list is a linear data structure where each node stores data and a reference to another node.",
+
+                concepts: [
+                    "Each node contains data.",
+                    "Nodes are connected using links.",
+                    "Insertion and deletion can be efficient.",
+                    "Types include singly and doubly linked lists."
+                ],
+
+                example:
+                    "A linked list can be represented as 10 → 20 → 30 → NULL."
+
+            },
+
+
+            "Stacks": {
+
+                title: "Stacks",
+
+                intro:
+                    "A stack is a linear data structure that follows the LIFO principle: Last In, First Out.",
+
+                concepts: [
+                    "Push adds an element.",
+                    "Pop removes the top element.",
+                    "Peek checks the top element.",
+                    "Stacks are used in recursion and expression evaluation."
+                ],
+
+                example:
+                    "If 10, 20 and 30 are pushed, 30 will be removed first."
+
+            },
+
+
+            "Queues": {
+
+                title: "Queues",
+
+                intro:
+                    "A queue is a linear data structure that generally follows FIFO: First In, First Out.",
+
+                concepts: [
+                    "Enqueue adds an element.",
+                    "Dequeue removes an element.",
+                    "Front points to the first element.",
+                    "Queues are used in scheduling and BFS."
+                ],
+
+                example:
+                    "In a queue 10 → 20 → 30, 10 will normally leave first."
+
+            },
+
+
+            "Trees": {
+
+                title: "Trees",
+
+                intro:
+                    "A tree is a hierarchical data structure consisting of nodes connected by edges.",
+
+                concepts: [
+                    "The top node is called the root.",
+                    "Nodes may have children.",
+                    "Leaf nodes have no children.",
+                    "Binary trees have at most two children per node."
+                ],
+
+                example:
+                    "A folder structure in a computer can be represented using a tree."
+
+            },
+
+
+            "Graphs": {
+
+                title: "Graphs",
+
+                intro:
+                    "A graph is a non-linear data structure consisting of vertices and edges.",
+
+                concepts: [
+                    "Vertices represent objects.",
+                    "Edges represent relationships.",
+                    "Graphs can be directed or undirected.",
+                    "BFS and DFS are common graph traversal techniques."
+                ],
+
+                example:
+                    "A social network can be represented as a graph where people are vertices."
+
+            },
+
+
+            "Searching & Sorting": {
+
+                title: "Searching & Sorting",
+
+                intro:
+                    "Searching finds an element while sorting arranges elements in a particular order.",
+
+                concepts: [
+                    "Linear search checks elements sequentially.",
+                    "Binary search works on sorted data.",
+                    "Bubble sort repeatedly compares adjacent elements.",
+                    "Efficient sorting algorithms improve performance."
+                ],
+
+                example:
+                    "Binary search repeatedly divides a sorted list into smaller parts."
+
+            },
+
+
+            "Time Complexity": {
+
+                title: "Time Complexity",
+
+                intro:
+                    "Time complexity describes how the running time of an algorithm grows as input size increases.",
+
+                concepts: [
+                    "O(1) represents constant time.",
+                    "O(n) represents linear time.",
+                    "O(log n) grows logarithmically.",
+                    "O(n²) commonly appears in nested loops."
+                ],
+
+                example:
+                    "Accessing an array element by index is generally O(1)."
+
+            },
+
+
+            "Algebra": {
+
+                title: "Algebra",
+
+                intro:
+                    "Algebra uses symbols and variables to represent numbers and relationships.",
+
+                concepts: [
+                    "Variables represent unknown values.",
+                    "Expressions contain numbers and variables.",
+                    "Equations represent equality.",
+                    "Algebra is used to solve real-world problems."
+                ],
+
+                example:
+                    "If x + 5 = 10, then x = 5."
+
+            },
+
+
+            "Mechanics": {
+
+                title: "Mechanics",
+
+                intro:
+                    "Mechanics is the branch of physics that studies motion and the forces causing motion.",
+
+                concepts: [
+                    "Distance and displacement describe motion.",
+                    "Velocity describes rate of change of displacement.",
+                    "Acceleration describes rate of change of velocity.",
+                    "Newton's laws explain the relationship between force and motion."
+                ],
+
+                example:
+                    "Force can change the motion of an object."
+
+            },
+
+
+            "Grammar": {
+
+                title: "Grammar",
+
+                intro:
+                    "Grammar provides rules for correctly forming sentences in a language.",
+
+                concepts: [
+                    "Parts of speech are important.",
+                    "Tenses describe time.",
+                    "Subject and verb should agree.",
+                    "Sentence structure affects meaning."
+                ],
+
+                example:
+                    "Correct: She goes to school. Incorrect: She go to school."
+
+            }
+
+        };
+
+
+        // ==========================================
+        // DEFAULT CONTENT
+        // ==========================================
+
+        let topicContent =
+            content[selectedTopic];
+
+
+        if (!topicContent) {
+
+            topicContent = {
+
+                title: selectedTopic,
+
+                intro:
+                    "This topic contains concepts selected according to your subject, educational level and goal.",
+
+                concepts: [
+                    "Understand the fundamental concepts.",
+                    "Study important definitions.",
+                    "Practice examples.",
+                    "Attempt quizzes to improve your understanding."
+                ],
+
+                example:
+                    "SmartLearn will adapt practice based on your performance."
+
+            };
+
+        }
+
+
+        // ==========================================
+        // RENDER CONTENT
+        // ==========================================
+
+        document.getElementById(
+            "learningContent"
+        ).innerHTML = `
+
+            <h3>Introduction</h3>
+
+            <p>
+                ${topicContent.intro}
+            </p>
+
+            <h3>Key Concepts</h3>
+
+            <ul>
+                ${
+                    topicContent.concepts
+                    .map(item => `<li>${item}</li>`)
+                    .join("")
+                }
+            </ul>
+
+            <div class="example">
+
+                <strong>💡 Example:</strong>
+
+                <p>
+                    ${topicContent.example}
+                </p>
+
+            </div>
+
+        `;
+
+
+        // ==========================================
+        // QUIZ CONTAINER
+        // ==========================================
+
+        const quizContainer =
+            document.getElementById(
+                "quizContainer"
+            );
+
+
+        // ==========================================
+        // RENDER 10 QUIZZES
+        // ==========================================
+
+        for (
+            let quizNumber = 1;
+            quizNumber <= 10;
+            quizNumber++
+        ) {
+
+            const quizResult =
+                progress.quizzes[quizNumber];
+
+
+            let scoreText =
+                "Not Attempted";
+
+
+            let cardClass = "";
+
+
+            if (quizResult) {
+
+                scoreText =
+                    "Score: " +
+                    quizResult.score +
+                    "%";
+
+
+                if (quizResult.score >= 70) {
+
+                    scoreText +=
+                        " • Passed";
+
+                    cardClass =
+                        "completed";
+
+                }
+
+            }
+
+
+            const previousQuiz =
+                quizNumber - 1;
+
+
+            let unlocked = true;
+
+
+            // Quiz 2 onwards requires previous quiz
+            if (quizNumber > 1) {
+
+                unlocked =
+                    !!progress.quizzes[previousQuiz];
+
+            }
+
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "quiz-card " +
+                (!unlocked ? "locked" : "");
+
+
+            card.innerHTML = `
+
+                <h3>
+                    Quiz ${quizNumber}
+                </h3>
+
+                <p>
+                    ${practiceQuestionCount}
+                    questions • Adaptive Practice
+                </p>
+
+                <div class="score ${cardClass}">
+                    ${scoreText}
+                </div>
+
+                <button
+                    class="quiz-btn"
+                    ${
+                        !unlocked
+                        ? "disabled"
+                        : ""
+                    }
+                    onclick="startPracticeQuiz(${quizNumber})">
+
+                    ${
+                        !unlocked
+                        ? "🔒 Complete Previous Quiz"
+                        : quizResult
+                        ? "Retry Quiz →"
+                        : "Start Quiz →"
+                    }
+
+                </button>
+
+            `;
+
+
+            quizContainer.appendChild(card);
+
+        }
+
+
+        // ==========================================
+        // CHECK FINAL QUIZ
+        // ==========================================
+
+        function checkFinalUnlock() {
+
+            let allCompleted = true;
+
+
+            for (
+                let i = 1;
+                i <= 10;
+                i++
+            ) {
+
+                if (!progress.quizzes[i]) {
+
+                    allCompleted = false;
+
+                    break;
+
+                }
+
+            }
+
+
+            const finalButton =
+                document.getElementById(
+                    "finalButton"
+                );
+
+
+            const finalScore =
+                document.getElementById(
+                    "finalScore"
+                );
+
+
+            if (!allCompleted) {
+
+                finalButton.disabled = true;
+
+                finalButton.textContent =
+                    "🔒 Complete 10 Practice Quizzes First";
+
+
+                if (
+                    progress.finalScore !== null
+                ) {
+
+                    finalScore.textContent =
+                        "Previous Final Score: " +
+                        progress.finalScore +
+                        "%";
+
+                }
+
+                else {
+
+                    finalScore.textContent =
+                        "Final Quiz is locked.";
+
+                }
+
+                return;
+
+            }
+
+
+            // All 10 completed
+
+            finalButton.disabled = false;
+
+
+            finalButton.textContent =
+                "🏆 Start Final Quiz";
+
+
+            if (
+                progress.finalScore !== null
+            ) {
+
+                finalScore.textContent =
+                    "Latest Final Score: " +
+                    progress.finalScore +
+                    "%";
+
+                if (
+                    progress.finalScore >= 70
+                ) {
+
+                    finalScore.className =
+                        "final-score completed";
+
+                    finalScore.textContent +=
+                        " • Topic Completed ✓";
+
+                }
+
+            }
+
+            else {
+
+                finalScore.textContent =
+                    "All practice quizzes completed. Final Quiz unlocked!";
+
+            }
+
+        }
+
+
+        checkFinalUnlock();
+
+
+        // ==========================================
+        // OPEN STUDY MATERIAL
+        // ==========================================
+
+        function openStudyMaterial(quizNumber) {
+            localStorage.setItem("selectedStudyQuiz", quizNumber);
+            localStorage.setItem("selectedSubject", selectedSubject);
+            localStorage.setItem("selectedTopic", selectedTopic);
+            localStorage.setItem("selectedLevel", selectedLevel);
+
+            window.location.href = "study-material.html";
+        }
+
+
+        // ==========================================
+        // START PRACTICE QUIZ
+        // ==========================================
+
+        function startPracticeQuiz(
+            quizNumber
+        ) {
+
+            const previousQuiz =
+                quizNumber - 1;
+
+
+            if (
+                quizNumber > 1 &&
+                !progress.quizzes[previousQuiz]
+            ) {
+
+                alert(
+                    "Please complete Quiz " +
+                    previousQuiz +
+                    " first."
+                );
+
+                return;
+
+            }
+
+
+            localStorage.setItem(
+                "selectedQuizNumber",
+                quizNumber
+            );
+
+
+            localStorage.setItem(
+                "quizQuestionCount",
+                practiceQuestionCount
+            );
+
+
+            localStorage.setItem(
+                "quizMode",
+                "practice"
+            );
+
+
+            localStorage.setItem(
+                "selectedLevel",
+                selectedLevel
+            );
+
+
+            window.location.href =
+                "quiz.html";
+
+        }
+
+
+        // ==========================================
+        // START FINAL QUIZ
+        // ==========================================
+
+        function startFinalQuiz() {
+
+            for (
+                let i = 1;
+                i <= 10;
+                i++
+            ) {
+
+                if (!progress.quizzes[i]) {
+
+                    alert(
+                        "Complete all 10 practice quizzes first."
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            let attemptNumber = 1;
+
+
+            if (
+                progress.finalAttempts &&
+                progress.finalAttempts.length
+            ) {
+
+                attemptNumber =
+                    progress.finalAttempts.length + 1;
+
+            }
+
+
+            localStorage.setItem(
+                "finalQuizAttempt",
+                attemptNumber
+            );
+
+
+            localStorage.setItem(
+                "quizMode",
+                "final"
+            );
+
+
+            localStorage.setItem(
+                "quizQuestionCount",
+                finalQuestionCount
+            );
+
+
+            localStorage.setItem(
+                "selectedLevel",
+                selectedLevel
+            );
+
+
+            window.location.href =
+                "quiz.html";
+
+        }
+
+
+        // ==========================================
+        // BACK TO TOPICS
+        // ==========================================
+
+        function goBackToTopics() {
+
+            window.location.href =
+                "topic-learning.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

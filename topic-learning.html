@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartLearn - Topic Learning</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f4f7fb;color:#1f2937}
+nav{background:#fff;padding:16px 7%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.logo{font-size:24px;font-weight:800;color:#2563eb}
+.back-btn{border:0;background:#eef2ff;color:#2563eb;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+.container{width:88%;max-width:1100px;margin:30px auto}
+.header,.mode-card,.theory-card,.level-card{background:#fff;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.07)}
+.header{padding:28px;margin-bottom:22px}
+.header h1{font-size:30px;margin-bottom:8px}
+.header p{color:#64748b;line-height:1.6}
+.info{margin-top:14px;background:#f8fafc;padding:12px 15px;border-radius:9px;color:#475569}
+.mode-card{padding:22px;margin-bottom:22px}
+.mode-card h2{margin-bottom:8px}
+.mode-card p{color:#64748b;line-height:1.5}
+.level-card{padding:22px;margin-bottom:22px}
+.level-head{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}
+.level-badge{background:#dbeafe;color:#1d4ed8;padding:7px 12px;border-radius:20px;font-weight:700;font-size:13px}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.theory-card{padding:20px;border:2px solid #e5e7eb;box-shadow:none}
+.theory-card h3{margin-bottom:8px;color:#1e3a8a}
+.theory-card p{color:#64748b;font-size:14px;line-height:1.5;min-height:42px}
+.status{margin:14px 0;display:inline-block;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:700;background:#f1f5f9;color:#475569}
+.start-btn{width:100%;padding:11px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+.start-btn:disabled{background:#cbd5e1;cursor:not-allowed}
+.locked{opacity:.72}
+footer{text-align:center;padding:25px;color:#64748b}
+@media(max-width:600px){.container{width:92%}.header h1{font-size:24px}.level-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">SmartLearn</div>
+  <button class="back-btn" onclick="goDashboard()">← Dashboard</button>
+</nav>
+
+<main class="container">
+  <section class="header">
+    <h1 id="pageTitle">Topic Learning</h1>
+    <p>Learn this topic step-by-step according to your education level and goal.</p>
+    <div class="info" id="studentInfo">Loading...</div>
+  </section>
+
+  <section class="mode-card">
+    <h2 id="modeTitle">Learning Mode</h2>
+    <p id="modeDescription"></p>
+  </section>
+
+  <section class="level-card">
+    <div class="level-head">
+      <div>
+        <h2>📚 Level 1</h2>
+        <p style="color:#64748b;margin-top:5px">Complete the required learning and quizzes before moving to the next level.</p>
+      </div>
+      <span class="level-badge">Current Level</span>
+    </div>
+
+    <div id="contentArea"></div>
+  </section>
+</main>
+
+<footer>© 2026 SmartLearn — AI-Powered Personal Learning System</footer>
+
+<script>
+const profileData = localStorage.getItem("studentProfile");
+if(!profileData){
+  alert("Please complete your profile first.");
+  window.location.href="student-profile.html";
+}
+
+const profile = JSON.parse(profileData || "{}");
+const selectedSubject = localStorage.getItem("selectedSubject");
+const selectedTopic = localStorage.getItem("selectedTopic");
+
+if(!selectedSubject || !selectedTopic){
+  alert("Please select a topic first.");
+  window.location.href="learning.html";
+}
+
+const studentId = profile.email || profile.mobile || profile.name || "student";
+const standard = parseInt(profile.standard);
+const isSchool5To10 =
+  profile.educationLevel === "school" &&
+  !isNaN(standard) &&
+  standard >= 5 &&
+  standard <= 10;
+
+document.getElementById("pageTitle").textContent =
+  selectedSubject + " • " + selectedTopic;
+
+let educationText = "";
+if(profile.educationLevel === "school"){
+  educationText = (profile.standard || "") + " | " +
+                   (profile.board || "") + " | " +
+                   (profile.medium || "");
+}else{
+  educationText = (profile.course || "") + " | " +
+                   (profile.branch || "") + " | " +
+                   (profile.collegeYear || "");
+}
+document.getElementById("studentInfo").textContent =
+  "Student: " + (profile.name || "") +
+  " • " + educationText +
+  " • Goal: " + (profile.goal || "");
+
+const theoryBank = {
+  "School Mathematics": [
+    "Explain the difference between a digit and a number with suitable examples.",
+    "What is place value? Explain the place value of digits in a number.",
+    "Explain different types of fractions with suitable examples.",
+    "What is a factor and what is a multiple? Explain with examples.",
+    "Explain how to find the perimeter of a rectangle with an example.",
+    "What is an angle? Explain acute, right, obtuse and straight angles.",
+    "Explain the difference between perimeter and area with examples.",
+    "What is a decimal number? Explain its use in daily life.",
+    "Explain the steps for solving a simple linear equation.",
+    "What is a ratio? Explain with a real-life example.",
+    "Explain the meaning of a percentage with an example.",
+    "What is a prime number? Explain with examples.",
+    "Explain the properties of a triangle.",
+    "What is symmetry? Explain with examples.",
+    "Explain the difference between mean, median and mode.",
+    "Explain how to construct a simple bar graph.",
+    "What is a variable in mathematics? Give an example.",
+    "Explain equivalent fractions with examples.",
+    "Explain the relationship between multiplication and division.",
+    "What is the Pythagorean theorem? State and explain it.",
+    "Explain the difference between a line, line segment and ray.",
+    "What is an integer? Explain positive and negative integers.",
+    "Explain how to compare two fractions.",
+    "What is probability? Explain using a simple example.",
+    "Explain why units are important while measuring quantities."
+  ],
+  "School Science": [
+    "What is matter? Explain its three common states.",
+    "Explain the difference between physical and chemical changes.",
+    "What is force? Explain with everyday examples.",
+    "Explain the difference between mass and weight.",
+    "What is energy? Explain two forms of energy.",
+    "Explain the process of photosynthesis.",
+    "What is a cell? Explain its basic parts.",
+    "Explain the importance of water for living organisms.",
+    "What is evaporation? Explain with a daily-life example.",
+    "Explain the difference between conductors and insulators.",
+    "What is friction? Explain its advantages and disadvantages.",
+    "Explain the water cycle.",
+    "What is an ecosystem? Explain its components.",
+    "Explain the difference between renewable and non-renewable resources.",
+    "What is digestion? Explain its main stages.",
+    "Explain why plants need sunlight.",
+    "What is a habitat? Give suitable examples.",
+    "Explain the role of oxygen in respiration.",
+    "What is a mixture? Explain with examples.",
+    "Explain the difference between acids and bases.",
+    "What is gravity? Explain its effect on objects.",
+    "Explain how shadows are formed.",
+    "What is adaptation? Explain with an example.",
+    "Explain the importance of a balanced diet.",
+    "What is pollution? Explain two types and their effects."
+  ],
+  "English": [
+    "What is a noun? Explain its types with examples.",
+    "What is a pronoun? Explain with suitable examples.",
+    "Explain the difference between a verb and an adjective.",
+    "What is a sentence? Explain its main types.",
+    "Explain the use of punctuation marks with examples.",
+    "What is a tense? Explain the three basic tenses.",
+    "Explain subject and predicate with examples.",
+    "What is a synonym? Give suitable examples.",
+    "What is an antonym? Give suitable examples.",
+    "Explain the difference between a phrase and a clause.",
+    "What is active voice and passive voice?",
+    "Explain direct and indirect speech with an example.",
+    "What is an article? Explain a, an and the.",
+    "Explain the importance of vocabulary in communication.",
+    "What is reading comprehension? Explain its purpose.",
+    "Explain how to write a good paragraph.",
+    "What is a preposition? Give examples.",
+    "Explain conjunctions with suitable examples.",
+    "What is an adverb? Explain its use.",
+    "Explain the difference between formal and informal language.",
+    "What is a subject-verb agreement?",
+    "Explain how context helps understand a new word.",
+    "What is a summary? Explain how to write one.",
+    "Explain the basic structure of a letter.",
+    "Why is grammar important in effective communication?"
+  ]
+};
+
+function shuffle(arr){
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function theoryProgressKey(n){
+  return "smartLearnTheoryProgress_" +
+    studentId + "_" +
+    selectedSubject + "_" +
+    selectedTopic + "_1_" + n;
+}
+
+function getTheoryQuestions(quizNumber){
+  const bank = theoryBank[selectedSubject] || [];
+  const start = (quizNumber - 1) * 5;
+  let questions = bank.slice(start, start + 5);
+
+  if(questions.length < 5){
+    questions = shuffle(bank).slice(0,5);
+  }
+  return shuffle(questions);
+}
+
+function startTheoryQuiz(quizNumber){
+  const questions = getTheoryQuestions(quizNumber);
+
+  if(questions.length < 5){
+    alert("Theory questions are not available for this subject yet.");
+    return;
+  }
+
+  const sessionId =
+    studentId + "_" +
+    Date.now() + "_" +
+    quizNumber;
+
+  const session = {
+    sessionId: sessionId,
+    quizNumber: quizNumber,
+    subject: selectedSubject,
+    topic: selectedTopic,
+    level: 1,
+    questions: questions
+  };
+
+  localStorage.setItem(
+    "smartLearnTheorySession_" + sessionId,
+    JSON.stringify(session)
+  );
+
+  localStorage.setItem("currentTheorySessionId", sessionId);
+  localStorage.setItem("selectedTheoryQuiz", String(quizNumber));
+  localStorage.setItem("selectedLevel", "1");
+  localStorage.setItem("learningMode", "theory");
+
+  window.location.href = "theory-quiz.html";
+}
+
+function isTheoryQuizPassed(n){
+  try{
+    const data = JSON.parse(localStorage.getItem(theoryProgressKey(n)) || "null");
+    return !!data && Number(data.score) >= 70;
+  }catch(e){
+    return false;
+  }
+}
+
+function renderTheory5To10(){
+  document.getElementById("modeTitle").textContent =
+    "✍️ Theory Question";
+
+  document.getElementById("modeDescription").textContent =
+    "Only descriptive theory questions are shown here. MCQs are not used in Theory Question.";
+
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "";
+
+  const grid = document.createElement("div");
+  grid.className = "topic-grid";
+
+  for(let quizNumber=1; quizNumber<=5; quizNumber++){
+    const passed = isTheoryQuizPassed(quizNumber);
+    const previousPassed =
+      quizNumber === 1 || isTheoryQuizPassed(quizNumber - 1);
+
+    const unlocked = previousPassed;
+    const card = document.createElement("div");
+    card.className = "theory-card" + (unlocked ? "" : " locked");
+
+    const status = passed
+      ? "✅ Passed"
+      : unlocked
+        ? "🟢 Available"
+        : "🔒 Locked";
+
+    card.innerHTML = `
+      <h3>✍️ Theory Quiz ${quizNumber}</h3>
+      <p>5 descriptive questions • 25 marks • Pass at 70%</p>
+      <span class="status">${status}</span>
+      <button class="start-btn" ${unlocked ? "" : "disabled"}
+        onclick="startTheoryQuiz(${quizNumber})">
+        ${passed ? "🔄 Try Again" : "Start Theory Quiz →"}
+      </button>
+    `;
+
+    grid.appendChild(card);
+  }
+
+  area.appendChild(grid);
+}
+
+function renderProblem5To10(){
+  document.getElementById("modeTitle").textContent =
+    "🧮 Problem Solve";
+
+  document.getElementById("modeDescription").textContent =
+    "Problem Solving is MCQ based. Each Practice attempt opens 10 changing MCQs.";
+
+  const area = document.getElementById("contentArea");
+
+  area.innerHTML = `
+    <div class="topic-grid">
+
+      <div class="theory-card">
+        <h3>🧮 Problem Solving — MCQ</h3>
+
+        <p>
+          Practice this topic using multiple-choice questions.
+          Questions and options change on new attempts.
+        </p>
+
+        <span class="status">📝 10 MCQs</span>
+
+        <button class="start-btn"
+          onclick="startProblemSolving()">
+          Start Problem Solving →
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+function startProblemSolving(){
+  localStorage.setItem("learningMode","problem");
+  localStorage.setItem("selectedLevel","1");
+  localStorage.setItem("quizMode","practice");
+  localStorage.setItem("selectedQuizNumber","1");
+  window.location.href = "quiz.html";
+}
+
+function render11Plus(){
+  document.getElementById("modeTitle").textContent =
+    "🧮 Problem Solving + 📝 Notes";
+
+  document.getElementById("modeDescription").textContent =
+    "For 11th standard and above, Theory Question is not shown. This topic uses only Problem Solving and Notes.";
+
+  const area = document.getElementById("contentArea");
+  area.innerHTML = `
+    <div class="topic-grid">
+      <div class="theory-card">
+        <h3>🧮 Problem Solving</h3>
+        <p>Practice topic-related problems with adaptive difficulty and performance-based questions.</p>
+        <span class="status">Level 1</span>
+        <button class="start-btn" onclick="startProblemSolving()">Start Problem Solving →</button>
+      </div>
+
+      <div class="theory-card">
+        <h3>📝 Notes</h3>
+        <p>Study personalized notes, definitions, examples and important points for this topic.</p>
+        <span class="status">Level 1</span>
+        <button class="start-btn" onclick="startNotes()">Open Notes →</button>
+      </div>
+    </div>
+  `;
+}
+
+function startProblemSolving(){
+  localStorage.setItem("learningMode","problem");
+  localStorage.setItem("selectedLevel","1");
+  window.location.href = "quiz1.html";
+}
+
+function startNotes(){
+  localStorage.setItem("learningMode","notes");
+  localStorage.setItem("selectedLevel","1");
+  window.location.href = "notes-login.html";
+}
+
+if(isSchool5To10){
+  const mode = localStorage.getItem("learningMode") || "problem";
+
+  if(mode === "theory"){
+    renderTheory5To10();
+  }else{
+    renderProblem5To10();
+  }
+}else{
+  render11Plus();
+}
+
+function goDashboard(){
+  window.location.href="dashboard.html";
+}
+</script>
+</body>
+</html>

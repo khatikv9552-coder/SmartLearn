@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SmartLearn - Theory Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f5f7fb;color:#222}.navbar{height:70px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 7%;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.logo{font-size:25px;font-weight:bold;color:#2563eb}.back-btn{border:none;background:#eef2ff;color:#2563eb;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:bold}
+.container{width:86%;max-width:900px;margin:30px auto}.header,.question-card,.result-card{background:white;padding:25px;border-radius:15px;box-shadow:0 3px 15px rgba(0,0,0,.06);margin-bottom:20px}
+.header h1{margin-bottom:8px}.header p{color:#64748b;line-height:1.6}.question-card h2{color:#2563eb;margin-bottom:12px}.question{font-size:18px;font-weight:bold;line-height:1.6;margin-bottom:15px}
+.instructions{background:#f8fafc;padding:15px;border-radius:10px;line-height:1.6;color:#475569;margin-bottom:15px}.upload-label{display:block;background:#7c3aed;color:white;text-align:center;padding:13px;border-radius:8px;cursor:pointer;font-weight:bold}
+input[type=file]{display:none}.preview{width:100%;max-height:400px;object-fit:contain;border:1px solid #ddd;border-radius:8px;display:none;margin-top:10px}
+.answer-box{width:100%;min-height:110px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;resize:vertical;font-size:15px;margin-top:10px}
+.check-btn,.final-submit{width:100%;border:none;padding:13px;color:white;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:12px}.check-btn{background:#2563eb}.final-submit{background:#16a34a;font-size:16px;margin-bottom:30px}
+.result{margin-top:15px;padding:15px;border-radius:8px;background:#f8fafc;line-height:1.6;display:none}.result-card{display:none}
+.ai-result-title{font-size:18px;font-weight:800;margin-bottom:10px}.ai-points{margin-top:10px}.ai-points ul{margin:6px 0 0 20px;padding:0}.ai-points li{margin:4px 0}.ai-feedback,.ai-improvement{margin-top:10px;padding:10px;border-radius:8px;background:#fff}.ai-improvement{border-left:4px solid #2563eb}.ai-feedback{border-left:4px solid #16a34a}.check-btn:disabled{opacity:.7;cursor:wait}
+
+@media(max-width:700px){.container{width:92%}.navbar{padding:0 4%}}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="logo">SmartLearn</div><button class="back-btn" onclick="goBack()">← Back</button></nav>
+<main class="container">
+<section class="header"><h1 id="title">Theory Quiz</h1><p id="info"></p></section>
+<div id="questionContainer"></div>
+<button class="final-submit" id="submitBtn" onclick="submitTheoryQuiz()">Submit Theory Quiz</button>
+<section class="result-card" id="resultCard"><h2>📊 Theory Quiz Result</h2><p id="resultText"></p></section>
+</main>
+<script>
+const profile=JSON.parse(localStorage.getItem("studentProfile")||"{}");
+const studentId=profile.email||profile.mobile||profile.name||"student";
+const sessionId=localStorage.getItem("currentTheorySessionId");
+const session=sessionId?JSON.parse(localStorage.getItem("smartLearnTheorySession_"+sessionId)||"null"):null;
+
+if(!session){alert("Please start a Theory Quiz first.");window.location.href="topic-learning.html";}
+
+document.getElementById("title").textContent="✍️ Theory Quiz "+session.quizNumber;
+document.getElementById("info").textContent=session.subject+" • "+session.topic+" • 5 Theory Questions";
+
+const answers=Array.from({length:5},()=>({photo:null,text:"",checked:false,marks:0}));
+
+function renderQuestions(){
+ const box=document.getElementById("questionContainer");box.innerHTML="";
+ session.questions.forEach((q,i)=>{
+  const card=document.createElement("section");card.className="question-card";
+  card.innerHTML=`<h2>Question ${i+1}</h2><div class="question">${q}</div>
+  <div class="instructions">📝 Write the answer on paper.<br>📷 Take a clear photo and upload it.</div>
+  <label class="upload-label" for="photo-${i}">📷 Take Photo / Upload Answer Photo</label>
+  <input id="photo-${i}" type="file" accept="image/*" capture="environment" onchange="previewPhoto(${i},this)">
+  <img id="preview-${i}" class="preview">
+  <textarea class="answer-box" id="text-${i}" placeholder="Optional: type the answer here for testing..."></textarea>
+  <button class="check-btn" onclick="checkAnswer(${i})">🤖 Check This Answer</button>
+  <div class="result" id="result-${i}"></div>`;
+  box.appendChild(card);
+ });
+}
+
+function previewPhoto(i,input){
+ const file=input.files&&input.files[0];if(!file)return;
+ answers[i].photo=file;
+ const img=document.getElementById("preview-"+i);img.src=URL.createObjectURL(file);img.style.display="block";
+ const r=document.getElementById("result-"+i);r.style.display="block";r.textContent="Photo selected. Click “Check This Answer”.";
+}
+
+function fileToBase64(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(String(reader.result).split(",")[1] || "");
+  reader.onerror=reject;
+  reader.readAsDataURL(file);
+ });
+}
+
+function escapeHtml(value){
+ return String(value ?? "")
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;")
+  .replace(/'/g,"&#039;");
+}
+
+function pointsHtml(title, points){
+ if(!Array.isArray(points) || points.length===0) return "";
+ return `<div class="ai-points"><strong>${title}</strong><ul>${points.map(p=>`<li>${escapeHtml(p)}</li>`).join("")}</ul></div>`;
+}
+
+async function checkAnswer(i){
+ const typed=document.getElementById("text-"+i).value.trim();
+ const photo=answers[i].photo;
+ if(!typed&&!photo){
+  alert("Please upload the answer photo or type an answer.");
+  return;
+ }
+
+ answers[i].text=typed;
+ const r=document.getElementById("result-"+i);
+ const btn=document.querySelectorAll(".check-btn")[i];
+ r.style.display="block";
+ r.innerHTML="<strong>🤖 AI is checking your answer...</strong><br>Please wait. Handwriting is being read and evaluated.";
+ if(btn){btn.disabled=true;btn.textContent="⏳ Checking...";}
+
+ try{
+  let imageBase64="";
+  if(photo){
+   imageBase64=await fileToBase64(photo);
+  }
+
+  const response=await fetch("http://localhost:5000/check-theory-answer",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    question:session.questions[i],
+    expectedAnswer:"",
+    studentAnswer:typed,
+    imageBase64,
+    profile,
+    subject:session.subject,
+    topic:session.topic
+   })
+  });
+
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.error || "AI checking failed");
+
+  answers[i].marks=Number(data.marks)||0;
+  answers[i].checked=true;
+
+  r.innerHTML=`
+   <div class="ai-result-title">✅ AI Evaluation: ${answers[i].marks}/5</div>
+   ${pointsHtml("✔ Correct Points",data.correctPoints)}
+   ${pointsHtml("⚠ Missing Points",data.missingPoints)}
+   ${pointsHtml("❌ Wrong / Incorrect Points",data.wrongPoints)}
+   <div class="ai-feedback"><strong>💬 Feedback:</strong><br>${escapeHtml(data.feedback || "No feedback provided.")}</div>
+   <div class="ai-improvement"><strong>🎯 Improvement:</strong><br>${escapeHtml(data.improvement || "Revise the important points and try again.")}</div>
+  `;
+
+ }catch(error){
+  console.error(error);
+  answers[i].checked=false;
+  r.innerHTML=`<strong>❌ AI checking failed</strong><br>${escapeHtml(error.message)}<br><small>Make sure the SmartLearn backend is running and Ollama has <b>llama3.2-vision</b>.</small>`;
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent="🤖 Check Again";}
+ }
+}
+
+function submitTheoryQuiz(){
+ if(answers.some(a=>!a.checked)){
+   alert("Please check all 5 theory answers before submitting.");
+   return;
+ }
+ let marks=answers.reduce((s,a)=>s+a.marks,0);
+ const totalMarks=25,score=Math.round(marks/totalMarks*100);
+ const key="smartLearnTheoryProgress_"+studentId+"_"+session.subject+"_"+session.topic+"_"+session.level+"_"+session.quizNumber;
+ localStorage.setItem(key,JSON.stringify({score,marks,totalMarks,sessionId,completedAt:new Date().toISOString()}));
+ document.getElementById("resultCard").style.display="block";
+ document.getElementById("resultText").innerHTML="<strong>Score: "+score+"%</strong><br>Marks: "+marks+"/"+totalMarks+"<br>"+(score>=70?"✅ Theory Quiz Passed":"📚 More practice recommended.");
+ document.getElementById("submitBtn").style.display="none";
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+function goBack(){window.location.href="topic-learning.html"}
+renderQuestions();
+</script>
+</body>
+</html>

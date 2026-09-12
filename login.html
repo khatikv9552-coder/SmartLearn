@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login - SmartLearn</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 900px;
+            max-width: 95%;
+            min-height: 550px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        /* LEFT */
+
+        .welcome {
+            background: #2563eb;
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .welcome h1 {
+            font-size: 38px;
+            margin-bottom: 20px;
+        }
+
+        .welcome p {
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        .features {
+            margin-top: 30px;
+        }
+
+        .features p {
+            margin: 14px 0;
+        }
+
+        /* RIGHT */
+
+        .login-section {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-section h2 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .error {
+            display: none;
+            color: #dc2626;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back a {
+            color: #2563eb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome {
+                padding: 35px 25px;
+            }
+
+            .welcome h1 {
+                font-size: 30px;
+            }
+
+            .login-section {
+                padding: 35px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- WELCOME -->
+
+        <div class="welcome">
+
+            <h1>
+                Welcome to<br>
+                SmartLearn 🤖
+            </h1>
+
+            <p>
+                Your AI-powered personal learning system
+                that understands your learning level and
+                helps you improve step by step.
+            </p>
+
+            <div class="features">
+
+                <p>🧠 AI Weak Topic Detection</p>
+
+                <p>🎯 Personalized Learning</p>
+
+                <p>📝 Adaptive Questions</p>
+
+                <p>🔒 Level-based Learning</p>
+
+                <p>💬 AI Learning Assistant</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <div class="login-section">
+
+            <h2>Student Login</h2>
+
+            <p class="subtitle">
+                Login to continue your learning journey.
+            </p>
+
+
+            <form onsubmit="loginStudent(event)">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required>
+
+                </div>
+
+
+                <p id="error" class="error">
+                    Please enter valid login details.
+                </p>
+
+
+                <button
+                    type="submit"
+                    class="login-btn">
+
+                    Login 🚀
+
+                </button>
+
+            </form>
+
+
+            <div class="back">
+
+                <a onclick="goHome()">
+                    ← Back to Home
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function loginStudent(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value.trim();
+
+
+            if (email === "" || password === "") {
+
+                document.getElementById("error")
+                    .style.display = "block";
+
+                return;
+
+            }
+
+
+            /*
+                Prototype login
+
+                पुढे Firebase Authentication
+                जोडणार आहोत.
+            */
+
+
+            localStorage.setItem(
+                "studentEmail",
+                email
+            );
+
+
+            window.location.href =
+                "student-profile.html";
+
+        }
+
+
+        function goHome() {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

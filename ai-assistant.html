@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLearn - AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .navbar {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .back-btn {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .ai-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .assistant-info {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .assistant-info strong {
+            color: #2563eb;
+        }
+
+        .student-context {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .context-chip {
+            background: white;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .chat-box {
+            height: 450px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .user .bubble {
+            background: #2563eb;
+            color: white;
+        }
+
+        .ai .bubble {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .input-area input:focus {
+            border-color: #2563eb;
+        }
+
+        .send-btn {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .send-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .warning {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff7ed;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #9a3412;
+        }
+
+        @media(max-width:600px) {
+            .navbar {
+                padding: 0 15px;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            .chat-box {
+                height: 400px;
+            }
+
+            .bubble {
+                max-width: 90%;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .send-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        SmartLearn 🤖
+    </div>
+
+    <button class="back-btn" onclick="goBack()">
+        ← Dashboard
+    </button>
+</nav>
+
+<div class="container">
+
+    <div class="header">
+        <h1>AI Learning Assistant 🤖</h1>
+        <p>Learn concepts, clear doubts and improve your understanding.</p>
+    </div>
+
+    <div class="ai-card">
+
+        <div class="assistant-info">
+            <strong>SmartLearn AI:</strong>
+            Ask me any educational question and I will explain the concept
+            according to your class, course, branch and learning goal.
+
+            <div class="student-context">
+                <span class="context-chip" id="classChip">Class: -</span>
+                <span class="context-chip" id="goalChip">Goal: -</span>
+                <span class="context-chip" id="subjectChip">Subject: -</span>
+                <span class="context-chip" id="topicChip">Topic: -</span>
+            </div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+
+            <div class="message ai">
+                <div class="bubble">
+👋 Hello! I'm your SmartLearn AI Assistant.
+
+Ask me anything about the subject you are learning.
+
+I will explain it in simple language with examples and according to your academic level.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Ask your learning doubt..."
+                onkeydown="handleEnter(event)"
+            >
+
+            <button
+                class="send-btn"
+                id="sendBtn"
+                onclick="sendMessage()">
+                Send
+            </button>
+
+        </div>
+
+        <div class="warning">
+            💡 SmartLearn AI uses your learning profile and current subject/topic
+            to make the explanation more suitable for you.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   LOAD STUDENT PROFILE
+========================= */
+
+let studentProfile = {};
+
+try {
+    studentProfile = JSON.parse(
+        localStorage.getItem("studentProfile") || "{}"
+    );
+} catch (error) {
+    studentProfile = {};
+}
+
+
+/* =========================
+   CURRENT LEARNING CONTEXT
+========================= */
+
+const selectedSubject =
+    localStorage.getItem("selectedSubject") || "";
+
+const selectedTopic =
+    localStorage.getItem("selectedTopic") || "";
+
+
+/* =========================
+   DISPLAY PROFILE
+========================= */
+
+function displayProfile() {
+
+    const standard =
+        studentProfile.standard || "";
+
+    const course =
+        studentProfile.course || "";
+
+    const branch =
+        studentProfile.branch || "";
+
+    const educationLevel =
+        studentProfile.educationLevel || "";
+
+    let classText = "-";
+
+    if (educationLevel === "school" && standard) {
+        classText = "Class " + standard;
+    }
+    else if (course) {
+        classText = course;
+
+        if (branch) {
+            classText += " - " + branch;
+        }
+    }
+
+    document.getElementById("classChip").innerText =
+        "Class/Course: " + classText;
+
+    document.getElementById("goalChip").innerText =
+        "Goal: " + (studentProfile.goal || "-");
+
+    document.getElementById("subjectChip").innerText =
+        "Subject: " + (selectedSubject || "-");
+
+    document.getElementById("topicChip").innerText =
+        "Topic: " + (selectedTopic || "-");
+}
+
+displayProfile();
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function goBack() {
+    window.location.href = "dashboard.html";
+}
+
+
+/* =========================
+   ENTER KEY
+========================= */
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+    }
+
+}
+
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById("userInput");
+
+    const sendBtn =
+        document.getElementById("sendBtn");
+
+    const question =
+        input.value.trim();
+
+    if (question === "") {
+        return;
+    }
+
+
+    /* USER MESSAGE */
+
+    addMessage(question, "user");
+
+    input.value = "";
+
+
+    /* DISABLE BUTTON */
+
+    sendBtn.disabled = true;
+    sendBtn.innerText = "Thinking...";
+
+
+    /* THINKING MESSAGE */
+
+    const thinking =
+        addMessage(
+            "🤖 Thinking...",
+            "ai"
+        );
+
+
+    try {
+
+        /*
+        Send:
+        1. Student question
+        2. Student profile
+        3. Current subject
+        4. Current topic
+
+        Your existing server.js already accepts
+        all four values at /ask-ai.
+        */
+
+        const response =
+            await fetch(
+                "http://localhost:5000/ask-ai",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        question: question,
+
+                        profile: studentProfile,
+
+                        subject: selectedSubject,
+
+                        topic: selectedTopic
+
+                    })
+                }
+            );
+
+
+        /* CHECK RESPONSE */
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* REMOVE THINKING */
+
+        thinking.remove();
+
+
+        /* AI ANSWER */
+
+        if (data.answer) {
+
+            addMessage(
+                data.answer,
+                "ai"
+            );
+
+        }
+        else {
+
+            addMessage(
+                "Sorry, I could not generate an answer.",
+                "ai"
+            );
+
+        }
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "AI Assistant Error:",
+            error
+        );
+
+
+        /* REMOVE THINKING */
+
+        thinking.remove();
+
+
+        addMessage(
+
+            "⚠️ AI server connection failed.\n\n" +
+            "Please check:\n" +
+            "1. Ollama is running\n" +
+            "2. server.js is running on port 5000\n" +
+            "3. llama3.2 model is installed\n" +
+            "4. Open http://localhost:5000 is not required in the browser; the HTML calls /ask-ai automatically.",
+
+            "ai"
+
+        );
+
+    }
+
+
+    /* ENABLE BUTTON */
+
+    sendBtn.disabled = false;
+    sendBtn.innerText = "Send";
+
+    input.focus();
+
+}
+
+
+/* =========================
+   ADD MESSAGE
+========================= */
+
+function addMessage(text, type) {
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message " + type;
+
+
+    const bubble =
+        document.createElement("div");
+
+    bubble.className =
+        "bubble";
+
+    bubble.innerText =
+        text;
+
+
+    message.appendChild(
+        bubble
+    );
+
+    chatBox.appendChild(
+        message
+    );
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+
+    return message;
+
+}
+
+</script>
+
+</body>
+</html>

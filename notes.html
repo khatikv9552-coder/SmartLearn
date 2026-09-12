@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartLearn - Personalized Notes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f4f7fb;color:#1f2937}
+.navbar{background:#fff;padding:18px 7%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.logo{font-size:25px;font-weight:bold;color:#2563eb}
+.back-btn{border:none;background:#eef2ff;color:#2563eb;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer}
+.container{width:88%;max-width:1100px;margin:30px auto 50px}
+.header{background:linear-gradient(135deg,#2563eb,#4f46e5);color:white;padding:30px;border-radius:18px;margin-bottom:22px}
+.header h1{font-size:30px;margin-bottom:8px}
+.header p{line-height:1.6;opacity:.95}
+.profile{background:#fff;border-radius:15px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.06);margin-bottom:24px}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.profile-item{background:#f8fafc;padding:12px;border-radius:9px}
+.profile-item span{display:block;color:#64748b;font-size:12px;margin-bottom:5px}
+.profile-item strong{font-size:15px}
+.section-title{font-size:24px;margin:22px 0 15px}
+.option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:25px}
+.option{background:#fff;border-radius:15px;padding:25px;box-shadow:0 4px 16px rgba(0,0,0,.06);cursor:pointer;border:2px solid transparent;transition:.2s}
+.option:hover{transform:translateY(-3px);border-color:#2563eb}
+.option h2{color:#1e3a8a;margin-bottom:8px}
+.option p{color:#64748b;line-height:1.5}
+.badge{display:inline-block;background:#eef2ff;color:#2563eb;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:bold;margin-bottom:12px}
+.topic-section{display:none}
+.topic-section.active{display:block}
+.topic-card{background:#fff;border-radius:13px;margin:14px 0;box-shadow:0 3px 14px rgba(0,0,0,.05);overflow:hidden}
+.topic-header{padding:17px 20px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.topic-header h3{color:#1e3a8a}
+.topic-header button{border:0;background:#eef2ff;color:#2563eb;padding:9px 13px;border-radius:7px;font-weight:bold;cursor:pointer}
+.topic-body{display:none;padding:0 20px 20px;border-top:1px solid #e5e7eb}
+.topic-body.active{display:block}
+.theory-block,.mcq-note{margin-top:16px;padding:16px;border-radius:10px}
+.theory-block{background:#f8fafc;border-left:4px solid #2563eb}
+.theory-block h4,.mcq-note h4{margin-bottom:8px}
+.theory-block p,.theory-block li{line-height:1.6;color:#374151}
+.theory-block ul{padding-left:20px;margin-top:8px}
+.mcq-note{border:1px solid #e5e7eb}
+.question{font-size:16px;font-weight:bold;line-height:1.5;margin-bottom:9px}
+.answer{background:#ecfdf5;border-left:4px solid #16a34a;padding:10px;border-radius:6px;margin-bottom:8px}
+.explain{background:#eff6ff;border-left:4px solid #2563eb;padding:10px;border-radius:6px;margin-bottom:8px;line-height:1.5}
+.example{background:#fff7ed;border-left:4px solid #f97316;padding:10px;border-radius:6px;line-height:1.5}
+.quiz-title{font-size:19px;color:#1e3a8a;margin-top:16px}
+.info{background:#eff6ff;border-left:4px solid #2563eb;padding:13px;border-radius:8px;margin-bottom:16px;line-height:1.5}
+.hidden{display:none}
+.empty{background:#fff;padding:30px;border-radius:14px;text-align:center;color:#64748b}
+footer{text-align:center;padding:25px;color:#64748b}
+@media(max-width:750px){
+ .profile-grid,.option-grid{grid-template-columns:1fr}
+ .container{width:92%}
+ .header h1{font-size:25px}
+ .topic-header{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">SmartLearn</div>
+  <button class="back-btn" onclick="goBack()">← Back</button>
+</nav>
+
+<main class="container">
+  <section class="header">
+    <h1>📚 Personalized Notes</h1>
+    <p>Notes are organized according to your academic profile and learning path.</p>
+  </section>
+
+  <section class="profile">
+    <div class="profile-grid">
+      <div class="profile-item"><span>Student</span><strong id="pName">-</strong></div>
+      <div class="profile-item"><span>Education</span><strong id="pEducation">-</strong></div>
+      <div class="profile-item"><span>Goal</span><strong id="pGoal">-</strong></div>
+      <div class="profile-item"><span>Board / University</span><strong id="pBoard">-</strong></div>
+      <div class="profile-item"><span>Course / Class</span><strong id="pCourse">-</strong></div>
+      <div class="profile-item"><span>Branch / Medium</span><strong id="pBranch">-</strong></div>
+    </div>
+  </section>
+
+  <section id="schoolOptions" class="hidden">
+    <div class="info" style="margin-bottom:18px;">
+      <strong>🎓 5th–10th Student:</strong>
+      Your notes are personalized using Class, Board, Medium and Goal.
+    </div>
+    <h2 class="section-title">Choose Notes Type</h2>
+    <div class="option-grid">
+      <div class="option" onclick="showSection('theorySection')">
+        <span class="badge">5th–10th</span>
+        <h2>📖 Theory Notes</h2>
+        <p>Chapter-style theory, definitions, concepts, important points and examples.</p>
+      </div>
+      <div class="option" onclick="showSection('problemSection')">
+        <span class="badge">5th–10th</span>
+        <h2>📝 Problem Solving Notes</h2>
+        <p>Quiz-wise notes based on the MCQs selected for your practice quizzes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="higherOptions" class="hidden">
+    <h2 class="section-title">Choose Notes Type</h2>
+    <div class="option-grid">
+      <div class="option" onclick="showSection('problemSection')">
+        <span class="badge">11th+</span>
+        <h2>📝 Problem Solving Notes</h2>
+        <p>Quiz-wise MCQ notes for your selected course, branch and goal.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="theorySection" class="topic-section">
+    <div class="info"><strong>📖 Theory Notes:</strong> Read the concept first, then move to Problem Solving.</div>
+    <div id="theoryContainer"></div>
+  </section>
+
+  <section id="problemSection" class="topic-section">
+    <div class="info"><strong>📝 Problem Solving Notes:</strong> These notes are arranged Quiz 1–Quiz 10. Each quiz contains 10 MCQ-based notes.</div>
+    <div id="problemContainer"></div>
+  </section>
+</main>
+
+<footer>© 2026 SmartLearn — AI-Powered Personal Learning System</footer>
+
+<script>
+const profile = JSON.parse(localStorage.getItem("studentProfile") || "{}");
+const selectedSubject = localStorage.getItem("selectedSubject") || "";
+
+const questionBank = {
+
+
+    /* =========================
+       LEVEL 1
+    ========================= */
+
+    "Arrays": [
+
+        {
+            q: "Which data structure stores elements in contiguous memory locations?",
+            o: ["Array", "Linked List", "Tree", "Graph"],
+            a: 0
+        },
+
+        {
+            q: "What is the first index of a typical zero-based array?",
+            o: ["0", "1", "-1", "2"],
+            a: 0
+        },
+
+        {
+            q: "Accessing an array element using its index usually takes:",
+            o: ["O(1)", "O(n)", "O(n²)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Which operation adds an element at the end of an array?",
+            o: ["Append", "Delete", "Search", "Sort"],
+            a: 0
+        },
+
+        {
+            q: "An array is generally best suited when:",
+            o: [
+                "Fast indexed access is required",
+                "Frequent random insertion is required",
+                "Only hierarchical data is needed",
+                "Only relationships are needed"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which index accesses the third element in a zero-based array?",
+            o: ["2", "3", "1", "0"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes an element from an array?",
+            o: ["Deletion", "Traversal", "Compilation", "Declaration"],
+            a: 0
+        },
+
+        {
+            q: "Which is a common application of arrays?",
+            o: [
+                "Storing collections of values",
+                "Representing only networks",
+                "Representing only files",
+                "Representing only processes"
+            ],
+            a: 0
+        },
+
+        {
+            q: "What is array traversal?",
+            o: [
+                "Visiting array elements",
+                "Deleting the array",
+                "Creating a database",
+                "Compiling code"
+            ],
+            a: 0
+        },
+
+        {
+            q: "A two-dimensional array is commonly used to represent:",
+            o: ["Matrix", "Stack only", "Queue only", "Tree only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Linked Lists": [
+
+        {
+            q: "A linked list consists mainly of:",
+            o: ["Nodes", "Indexes only", "Rows only", "Tables only"],
+            a: 0
+        },
+
+        {
+            q: "A node in a singly linked list normally contains:",
+            o: ["Data and next pointer", "Only data", "Only pointer", "Two arrays"],
+            a: 0
+        },
+
+        {
+            q: "The last node of a singly linked list points to:",
+            o: ["NULL", "First node always", "Previous node", "Root"],
+            a: 0
+        },
+
+        {
+            q: "Which linked list has links in both directions?",
+            o: ["Doubly linked list", "Singly linked list", "Circular array", "Binary tree"],
+            a: 0
+        },
+
+        {
+            q: "Linked lists are useful when frequent ______ is required.",
+            o: ["Insertion and deletion", "Random indexing", "Sorting only", "Compilation"],
+            a: 0
+        },
+
+        {
+            q: "A circular linked list connects the last node to:",
+            o: ["First node", "NULL", "Middle node", "Root"],
+            a: 0
+        },
+
+        {
+            q: "Unlike arrays, linked list nodes are generally:",
+            o: ["Not required to be contiguous", "Always contiguous", "Always sorted", "Always indexed"],
+            a: 0
+        },
+
+        {
+            q: "Which pointer is used to move through a linked list?",
+            o: ["Next pointer", "Root pointer", "Index pointer", "Matrix pointer"],
+            a: 0
+        }
+
+    ],
+
+
+    "Stacks": [
+
+        {
+            q: "A stack follows which principle?",
+            o: ["LIFO", "FIFO", "Random", "Priority only"],
+            a: 0
+        },
+
+        {
+            q: "Which operation inserts an element into a stack?",
+            o: ["Push", "Pop", "Peek", "Delete"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes the top element?",
+            o: ["Pop", "Push", "Peek", "Search"],
+            a: 0
+        },
+
+        {
+            q: "Which operation views the top element without removing it?",
+            o: ["Peek", "Pop", "Push", "Sort"],
+            a: 0
+        },
+
+        {
+            q: "Which problem commonly uses a stack?",
+            o: ["Function call management", "IP addressing", "Database normalization", "File compression only"],
+            a: 0
+        },
+
+        {
+            q: "If A, B and C are pushed into a stack, which is popped first?",
+            o: ["C", "A", "B", "None"],
+            a: 0
+        }
+
+    ],
+
+
+    "Queues": [
+
+        {
+            q: "A queue normally follows:",
+            o: ["FIFO", "LIFO", "Random", "Tree order"],
+            a: 0
+        },
+
+        {
+            q: "Which operation inserts an element into a queue?",
+            o: ["Enqueue", "Dequeue", "Pop", "Peek"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes an element from a queue?",
+            o: ["Dequeue", "Enqueue", "Push", "Insert"],
+            a: 0
+        },
+
+        {
+            q: "Which element is normally removed first from a queue?",
+            o: ["First inserted element", "Last inserted element", "Middle element", "Largest element"],
+            a: 0
+        },
+
+        {
+            q: "BFS commonly uses which data structure?",
+            o: ["Queue", "Stack", "Array only", "Tree only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Trees": [
+
+        {
+            q: "The topmost node in a tree is called:",
+            o: ["Root", "Leaf", "Edge", "Child"],
+            a: 0
+        },
+
+        {
+            q: "A node with no children is called:",
+            o: ["Leaf", "Root", "Parent", "Edge"],
+            a: 0
+        },
+
+        {
+            q: "A binary tree node can have at most:",
+            o: ["2 children", "1 child", "3 children", "4 children"],
+            a: 0
+        },
+
+        {
+            q: "Which structure represents hierarchical data?",
+            o: ["Tree", "Stack", "Queue", "Array only"],
+            a: 0
+        },
+
+        {
+            q: "The connection between two tree nodes is called:",
+            o: ["Edge", "Index", "Pointer only", "Row"],
+            a: 0
+        }
+
+    ],
+
+
+    "Graphs": [
+
+        {
+            q: "A graph consists mainly of:",
+            o: ["Vertices and edges", "Rows and columns", "Stacks and queues", "Keys and values only"],
+            a: 0
+        },
+
+        {
+            q: "BFS stands for:",
+            o: [
+                "Breadth First Search",
+                "Binary First Search",
+                "Basic File Search",
+                "Breadth File System"
+            ],
+            a: 0
+        },
+
+        {
+            q: "DFS stands for:",
+            o: [
+                "Depth First Search",
+                "Data File Search",
+                "Direct First Search",
+                "Depth File System"
+            ],
+            a: 0
+        },
+
+        {
+            q: "A graph with arrows on edges is called:",
+            o: ["Directed graph", "Binary graph", "Linear graph", "Static graph"],
+            a: 0
+        },
+
+        {
+            q: "A graph without direction on edges is called:",
+            o: ["Undirected graph", "Directed graph", "Binary graph", "Tree graph"],
+            a: 0
+        }
+
+    ],
+
+
+    "Searching & Sorting": [
+
+        {
+            q: "Binary search requires the data to be:",
+            o: ["Sorted", "Unsorted", "Encrypted", "Deleted"],
+            a: 0
+        },
+
+        {
+            q: "Linear search checks elements:",
+            o: ["Sequentially", "Randomly only", "In reverse only", "Using a tree"],
+            a: 0
+        },
+
+        {
+            q: "Which algorithm repeatedly compares adjacent elements?",
+            o: ["Bubble Sort", "Binary Search", "DFS", "BFS"],
+            a: 0
+        },
+
+        {
+            q: "Binary search generally has time complexity:",
+            o: ["O(log n)", "O(n²)", "O(n)", "O(1) always"],
+            a: 0
+        },
+
+        {
+            q: "Sorting means:",
+            o: [
+                "Arranging elements in an order",
+                "Deleting elements",
+                "Searching only",
+                "Compiling data"
+            ],
+            a: 0
+        }
+
+    ],
+
+
+    "Time Complexity": [
+
+        {
+            q: "Which complexity represents constant time?",
+            o: ["O(1)", "O(n)", "O(n²)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Which complexity is linear?",
+            o: ["O(n)", "O(1)", "O(log n)", "O(n²)"],
+            a: 0
+        },
+
+        {
+            q: "Which complexity grows logarithmically?",
+            o: ["O(log n)", "O(n)", "O(n²)", "O(1)"],
+            a: 0
+        },
+
+        {
+            q: "Two nested loops often result in:",
+            o: ["O(n²)", "O(1)", "O(log n)", "O(n)"],
+            a: 0
+        },
+
+        {
+            q: "Time complexity describes:",
+            o: [
+                "How algorithm running time grows",
+                "Computer screen size",
+                "File name length",
+                "Network speed only"
+            ],
+            a: 0
+        }
+
+    ],
+
+
+    "Algebra": [
+
+        {
+            q: "If x + 5 = 10, what is x?",
+            o: ["5", "10", "15", "0"],
+            a: 0
+        },
+
+        {
+            q: "What is 2x when x = 3?",
+            o: ["6", "5", "9", "3"],
+            a: 0
+        },
+
+        {
+            q: "An equation contains:",
+            o: ["Equality relation", "Only numbers", "Only letters", "Only operators"],
+            a: 0
+        },
+
+        {
+            q: "Which symbol commonly represents an unknown value?",
+            o: ["x", "=", "+", "/"],
+            a: 0
+        },
+
+        {
+            q: "What is 3²?",
+            o: ["9", "6", "3", "12"],
+            a: 0
+        }
+
+    ],
+
+
+    "Mechanics": [
+
+        {
+            q: "The rate of change of displacement is:",
+            o: ["Velocity", "Force", "Mass", "Energy"],
+            a: 0
+        },
+
+        {
+            q: "The rate of change of velocity is:",
+            o: ["Acceleration", "Distance", "Mass", "Work"],
+            a: 0
+        },
+
+        {
+            q: "Newton's second law relates force to:",
+            o: ["Mass and acceleration", "Time only", "Distance only", "Temperature"],
+            a: 0
+        },
+
+        {
+            q: "The SI unit of force is:",
+            o: ["Newton", "Joule", "Watt", "Pascal"],
+            a: 0
+        },
+
+        {
+            q: "Motion is studied under:",
+            o: ["Mechanics", "Optics", "Thermodynamics only", "Electronics"],
+            a: 0
+        }
+
+    ],
+
+
+    "Grammar": [
+
+        {
+            q: "Which word is a noun?",
+            o: ["Teacher", "Quickly", "Beautiful", "Run"],
+            a: 0
+        },
+
+        {
+            q: "Which word is a verb?",
+            o: ["Run", "Blue", "Table", "Slowly"],
+            a: 0
+        },
+
+        {
+            q: "Which sentence is grammatically correct?",
+            o: [
+                "She goes to school.",
+                "She go to school.",
+                "She going school.",
+                "She gone school."
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which tense describes an action happening now?",
+            o: ["Present continuous", "Past perfect", "Future perfect", "Past simple"],
+            a: 0
+        }
+
+    ],
+
+
+    /* =========================
+       LEVEL 2
+    ========================= */
+
+    "Binary Search Trees": [
+
+        {
+            q: "In a Binary Search Tree, values in the left subtree are generally:",
+            o: ["Smaller than the node", "Larger than the node", "Always equal", "Random"],
+            a: 0
+        },
+
+        {
+            q: "In a BST, values in the right subtree are generally:",
+            o: ["Greater than the node", "Smaller than the node", "Always equal", "Negative"],
+            a: 0
+        },
+
+        {
+            q: "Inorder traversal of a BST produces:",
+            o: ["Sorted order", "Reverse graph", "Random order", "Level count"],
+            a: 0
+        },
+
+        {
+            q: "Average search time in a balanced BST is:",
+            o: ["O(log n)", "O(n²)", "O(1)", "O(n³)"],
+            a: 0
+        },
+
+        {
+            q: "Worst-case search time in a skewed BST can become:",
+            o: ["O(n)", "O(log n)", "O(1)", "O(n²)"],
+            a: 0
+        }
+
+    ],
+
+
+    "AVL Trees": [
+
+        {
+            q: "AVL tree is a:",
+            o: ["Self-balancing BST", "Queue", "Graph", "Heap only"],
+            a: 0
+        },
+
+        {
+            q: "AVL balance factor is based on:",
+            o: ["Heights of left and right subtrees", "Number of arrays", "Graph edges", "Queue size"],
+            a: 0
+        },
+
+        {
+            q: "A valid AVL balance factor is generally:",
+            o: ["-1, 0, or 1", "2, 3, 4", "Only 0", "Only 1"],
+            a: 0
+        },
+
+        {
+            q: "AVL trees use rotations to:",
+            o: ["Restore balance", "Delete all nodes", "Sort arrays", "Create graphs"],
+            a: 0
+        }
+
+    ],
+
+
+    "Graph Traversal": [
+
+        {
+            q: "BFS normally uses which data structure?",
+            o: ["Queue", "Stack", "Heap only", "Array only"],
+            a: 0
+        },
+
+        {
+            q: "DFS can be implemented using:",
+            o: ["Stack or recursion", "Queue only", "Hash table only", "Database"],
+            a: 0
+        },
+
+        {
+            q: "BFS explores nodes generally:",
+            o: ["Level by level", "Randomly", "Only backwards", "By weight only"],
+            a: 0
+        },
+
+        {
+            q: "DFS explores:",
+            o: ["Deep before backtracking", "Only one node", "Only edges", "Only weights"],
+            a: 0
+        }
+
+    ],
+
+
+    "Shortest Path Algorithms": [
+
+        {
+            q: "Which algorithm is commonly used for shortest paths with non-negative edge weights?",
+            o: ["Dijkstra", "DFS", "Bubble Sort", "Binary Search"],
+            a: 0
+        },
+
+        {
+            q: "Bellman-Ford can handle:",
+            o: ["Negative edge weights", "Only positive numbers", "Arrays only", "Trees only"],
+            a: 0
+        },
+
+        {
+            q: "Floyd-Warshall is commonly used for:",
+            o: ["All-pairs shortest paths", "Sorting", "Stack operations", "String matching only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Recursion & Backtracking": [
+
+        {
+            q: "A recursive function calls:",
+            o: ["Itself", "Only another program", "Database", "Compiler"],
+            a: 0
+        },
+
+        {
+            q: "A recursive algorithm should normally have:",
+            o: ["Base case", "Only loop", "Only array", "Only class"],
+            a: 0
+        },
+
+        {
+            q: "Backtracking explores a solution and:",
+            o: ["Reverts choices when needed", "Never changes choices", "Deletes all solutions", "Sorts arrays"],
+            a: 0
+        }
+
+    ],
+
+
+    "Dynamic Programming": [
+
+        {
+            q: "Dynamic Programming commonly stores:",
+            o: ["Results of overlapping subproblems", "Only input", "Only errors", "Network packets"],
+            a: 0
+        },
+
+        {
+            q: "Which is a common DP property?",
+            o: ["Overlapping subproblems", "Only recursion", "Only sorting", "Only graphs"],
+            a: 0
+        },
+
+        {
+            q: "Memoization is generally:",
+            o: ["Top-down DP", "Bottom-up only", "Sorting", "Graph traversal"],
+            a: 0
+        },
+
+        {
+            q: "Tabulation is generally:",
+            o: ["Bottom-up DP", "Top-down recursion only", "Searching", "Hashing"],
+            a: 0
+        }
+
+    ],
+
+
+    "Greedy Algorithms": [
+
+        {
+            q: "A greedy algorithm chooses:",
+            o: ["A locally best choice", "Always the worst choice", "Random choice", "Every possible choice"],
+            a: 0
+        },
+
+        {
+            q: "Greedy algorithms do not always:",
+            o: ["Produce a globally optimal solution", "Use decisions", "Process input", "Compare choices"],
+            a: 0
+        },
+
+        {
+            q: "Which is a classic greedy algorithm?",
+            o: ["Kruskal's algorithm", "Binary Search", "DFS only", "Bubble Sort"],
+            a: 0
+        }
+
+    ],
+
+
+    "Advanced Sorting": [
+
+        {
+            q: "Average time complexity of Quick Sort is generally:",
+            o: ["O(n log n)", "O(n²) always", "O(1)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Merge Sort has time complexity:",
+            o: ["O(n log n)", "O(n²) always", "O(1)", "O(n³)"],
+            a: 0
+        },
+
+        {
+            q: "Merge Sort is based on:",
+            o: ["Divide and conquer", "Greedy only", "Backtracking only", "Hashing"],
+            a: 0
+        }
+
+    ],
+
+
+    "Advanced JavaScript": [
+
+        {
+            q: "Which feature allows JavaScript to handle asynchronous operations?",
+            o: ["Promises", "Only variables", "CSS", "HTML tags"],
+            a: 0
+        },
+
+        {
+            q: "async/await is used mainly with:",
+            o: ["Promises", "CSS selectors", "HTML tables", "SQL keys"],
+            a: 0
+        },
+
+        {
+            q: "Which keyword creates a constant binding?",
+            o: ["const", "varonly", "fixed", "constant"],
+            a: 0
+        }
+
+    ],
+
+
+    "DOM Manipulation": [
+
+        {
+            q: "DOM stands for:",
+            o: [
+                "Document Object Model",
+                "Data Object Method",
+                "Document Output Model",
+                "Digital Object Management"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which method selects an element by ID?",
+            o: ["getElementById()", "getIdOnly()", "selectID()", "findID()"],
+            a: 0
+        },
+
+        {
+            q: "Which property can change visible text?",
+            o: ["textContent", "database", "server", "hrefOnly"],
+            a: 0
+        }
+
+    ],
+
+
+    "APIs": [
+
+        {
+            q: "API stands for:",
+            o: [
+                "Application Programming Interface",
+                "Application Process Internet",
+                "Advanced Program Input",
+                "Application Page Index"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which HTTP method is commonly used to retrieve data?",
+            o: ["GET", "SEND", "FETCHONLY", "READDATA"],
+            a: 0
+        },
+
+        {
+            q: "JSON is commonly used for:",
+            o: ["Data exchange", "Styling", "Image editing", "Compilation"],
+            a: 0
+        }
+
+    ]
+
+};
+
+const standard = parseInt(profile.standard);
+const isSchool = profile.educationLevel === "school" &&
+                 !isNaN(standard) && standard >= 5 && standard <= 10;
+
+document.getElementById("pName").textContent = profile.name || "Student";
+document.getElementById("pGoal").textContent = profile.goal || "-";
+
+if(isSchool){
+  document.getElementById("pEducation").textContent = "Standard " + standard;
+  document.getElementById("pBoard").textContent = profile.board || "-";
+  document.getElementById("pCourse").textContent = profile.standard || "-";
+  document.getElementById("pBranch").textContent = profile.medium || "-";
+  document.getElementById("schoolOptions").classList.remove("hidden");
+}else{
+  document.getElementById("pEducation").textContent = profile.course || "11th+ / College";
+  document.getElementById("pBoard").textContent = profile.university || profile.college || "-";
+  document.getElementById("pCourse").textContent = profile.course || "-";
+  document.getElementById("pBranch").textContent = profile.branch || profile.medium || "-";
+  document.getElementById("higherOptions").classList.remove("hidden");
+}
+
+function esc(v){
+  return String(v ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getTopics(){
+  const goal = String(profile.goal || "").toLowerCase();
+  const course = String(profile.course || "").toLowerCase();
+  const branch = String(profile.branch || "").toLowerCase();
+
+  // 5th–10th: map Learning subject names to the actual question-bank keys.
+  if(isSchool){
+    if(selectedSubject === "School Mathematics"){
+      return ["Algebra"];
+    }
+
+    if(selectedSubject === "School Science"){
+      return ["Mechanics"];
+    }
+
+    if(selectedSubject === "English"){
+      return ["Grammar"];
+    }
+
+    // Helpful fallback for any other school subject.
+    return Object.keys(questionBank).filter(k =>
+      ["Algebra","Mechanics","Grammar"].includes(k)
+    );
+  }
+
+  // 11th+ / college / competitive goals
+  if(questionBank[selectedSubject]) return [selectedSubject];
+
+  if(goal.includes("jee")){
+    return ["Mechanics","Algebra"].filter(k => questionBank[k]);
+  }
+
+  if(goal.includes("neet")){
+    return ["Mechanics","Grammar"].filter(k => questionBank[k]);
+  }
+
+  if(goal.includes("software") || goal.includes("ai/ml") ||
+     branch.includes("cs") || branch.includes("it")){
+    return [
+      "Arrays","Linked Lists","Stacks","Queues","Trees","Graphs",
+      "Searching & Sorting","Time Complexity","Advanced JavaScript",
+      "DOM Manipulation","APIs"
+    ].filter(k => questionBank[k]);
+  }
+
+  if(course.includes("b.tech") || course.includes("computer")){
+    return [
+      "Arrays","Linked Lists","Stacks","Queues","Trees","Graphs",
+      "Searching & Sorting","Time Complexity","Binary Search Trees",
+      "AVL Trees","Graph Traversal","Shortest Path Algorithms",
+      "Recursion & Backtracking","Dynamic Programming","Greedy Algorithms",
+      "Advanced Sorting"
+    ].filter(k => questionBank[k]);
+  }
+
+  return Object.keys(questionBank).slice(0,6);
+}
+
+function shuffle(arr){
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function buildQuiz(topic, quizNo){
+  const bank = questionBank[topic] || [];
+  if(!bank.length) return [];
+
+  const count = Math.min(10, bank.length);
+  const base = [...Array(bank.length).keys()];
+
+  // Profile/goal-aware deterministic base + light randomization.
+  const start = (quizNo - 1) % bank.length;
+  const selected = [];
+  for(let i=0;i<count;i++){
+    selected.push(base[(start + i + quizNo - 1) % bank.length]);
+  }
+
+  return shuffle(selected);
+}
+
+function topicTheory(topic){
+  const lower = topic.toLowerCase();
+
+  // School 5th–10th theory notes
+  if(isSchool && selectedSubject === "School Mathematics"){
+    return {
+      title: "School Mathematics",
+      intro: "For Class " + standard + ", revise the selected mathematics concepts using simple definitions, rules and examples before attempting MCQs.",
+      points: [
+        "Understand variables, constants and simple algebraic expressions.",
+        "Learn how to simplify expressions and solve basic equations.",
+        "Revise number operations, signs and mathematical symbols.",
+        "Practice each rule with a small example before the quiz."
+      ],
+      example: "Example: If x + 5 = 10, subtract 5 from both sides. Therefore x = 5."
+    };
+  }
+
+  if(isSchool && selectedSubject === "School Science"){
+    return {
+      title: "School Science",
+      intro: "For Class " + standard + ", understand basic scientific concepts first and then practice questions based on those concepts.",
+      points: [
+        "Learn the meaning of force, motion, energy and other basic science terms.",
+        "Understand how scientific quantities are related.",
+        "Connect each concept with an everyday example.",
+        "Revise definitions and important units before the quiz."
+      ],
+      example: "Example: When a moving object changes its speed or direction, its velocity changes."
+    };
+  }
+
+  if(isSchool && selectedSubject === "English"){
+    return {
+      title: "English",
+      intro: "For Class " + standard + ", study basic grammar rules and sentence formation before attempting the practice quiz.",
+      points: [
+        "Understand parts of speech such as noun and verb.",
+        "Learn correct subject–verb agreement.",
+        "Revise basic tense rules.",
+        "Read sentences carefully before selecting an answer."
+      ],
+      example: "Example: 'She goes to school.' is correct because 'she' takes the singular verb 'goes'."
+    };
+  }
+
+  let title = topic;
+  let intro = "Study the basic concepts of " + topic + " before attempting the practice quiz.";
+  let points = [
+    "Understand the basic definition and purpose.",
+    "Learn the important terms related to the topic.",
+    "Study simple examples.",
+    "Revise the key points before solving questions."
+  ];
+  let example = "Example: Connect the concept with a simple real-world situation.";
+
+  if(lower.includes("array")){
+    points = ["Arrays store multiple values using indexed positions.","Indexes are commonly used to access elements.","Traversal means visiting elements one by one.","Insertion and deletion may require shifting elements."];
+    example = "Example: [10, 20, 30] stores three values and index 0 refers to 10.";
+  }else if(lower.includes("linked list")){
+    points = ["A linked list is made of nodes.","Each node stores data and a link to another node.","Nodes need not occupy contiguous memory.","Insertion and deletion can be efficient when the position is known."];
+    example = "Example: A student record can point to the next student record.";
+  }else if(lower.includes("stack")){
+    points = ["A stack follows LIFO: Last In, First Out.","Push adds an element.","Pop removes the top element.","Peek reads the top element without removing it."];
+    example = "Example: Plates stacked on top of one another.";
+  }else if(lower.includes("queue")){
+    points = ["A queue generally follows FIFO: First In, First Out.","Enqueue inserts an element.","Dequeue removes an element.","Queues are useful for waiting-line systems."];
+    example = "Example: People standing in a line are served from the front.";
+  }else if(lower.includes("tree")){
+    points = ["Trees represent hierarchical relationships.","The top node is the root.","Nodes may have children.","A leaf node has no children."];
+    example = "Example: A folder structure can be represented as a tree.";
+  }else if(lower.includes("graph")){
+    points = ["A graph contains vertices and edges.","Graphs can represent relationships and networks.","BFS explores broadly level by level.","DFS explores deeply before backtracking."];
+    example = "Example: Cities can be vertices and roads can be edges.";
+  }else if(lower.includes("sorting")){
+    points = ["Sorting arranges data in a chosen order.","Common orders are ascending and descending.","Different sorting algorithms have different time costs.","The suitable algorithm depends on the problem."];
+    example = "Example: 5, 2, 4 becomes 2, 4, 5 in ascending order.";
+  }else if(lower.includes("search")){
+    points = ["Searching finds a required item in data.","Linear search checks items one by one.","Binary search repeatedly reduces the search range.","Binary search requires sorted data."];
+    example = "Example: Binary search can locate a value in a sorted list by repeatedly checking the middle.";
+  }else if(lower.includes("complexity")){
+    points = ["Time complexity describes how execution grows with input size.","Big-O gives an upper-bound growth description.","O(1) is constant time.","O(n) grows linearly with input size."];
+    example = "Example: Reading one array element by index is typically O(1).";
+  }else if(lower.includes("algebra")){
+    points = ["Algebra uses symbols such as x and y to represent unknown values.","Expressions combine numbers, variables and operators.","Equations state that two expressions are equal.","Solving means finding values that satisfy the equation."];
+    example = "Example: x + 5 = 10 gives x = 5.";
+  }else if(lower.includes("mechanics") || lower.includes("physics")){
+    points = ["Mechanics studies motion and forces.","Velocity describes rate of change of position.","Acceleration describes change in velocity.","Force changes the motion of an object."];
+    example = "Example: A moving car that increases its speed has acceleration.";
+  }else if(lower.includes("grammar")){
+    points = ["Grammar provides rules for sentence formation.","Parts of speech perform different roles.","Tense shows time of an action.","Correct agreement improves sentence accuracy."];
+    example = "Example: In 'She goes to school', 'goes' is the verb.";
+  }
+
+  return {title,intro,points,example};
+}
+
+function renderTheory(){
+  const box = document.getElementById("theoryContainer");
+  const topics = getTopics();
+
+  if(!topics.length){
+    box.innerHTML = '<div class="empty">Theory notes are not available for this profile yet.</div>';
+    return;
+  }
+
+  box.innerHTML = topics.map((topic,idx)=>{
+    const t = topicTheory(topic);
+    return `
+      <div class="topic-card">
+        <div class="topic-header">
+          <h3>${esc(t.title)}</h3>
+          <button onclick="toggleTopic('theory-${idx}')">Read Notes ▼</button>
+        </div>
+        <div class="topic-body" id="theory-${idx}">
+          <div class="theory-block">
+            <h4>📌 Introduction</h4>
+            <p>${esc(t.intro)}</p>
+          </div>
+          <div class="theory-block">
+            <h4>📚 Important Points</h4>
+            <ul>${t.points.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+          </div>
+          <div class="theory-block">
+            <h4>💡 Example</h4>
+            <p>${esc(t.example)}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function explanation(topic, q){
+  const low = (topic + " " + q).toLowerCase();
+  if(low.includes("array")) return ["Arrays use indexed positions to store and access values efficiently.","Think about a collection where each item has a position.","Example: marks[2] accesses an element at index 2."];
+  if(low.includes("stack")) return ["A stack follows LIFO, so the most recently inserted item is removed first.","Push adds to the top and pop removes from the top.","Example: The last plate placed on a stack is removed first."];
+  if(low.includes("queue")) return ["A queue follows FIFO, so the earliest inserted item is removed first.","Enqueue inserts and dequeue removes.","Example: The first person in a line is normally served first."];
+  if(low.includes("linked list")) return ["Linked-list nodes are connected by links and can be stored at different memory locations.","A node contains data and a link/reference.","Example: Each node can point to the next student record."];
+  if(low.includes("tree") || low.includes("root") || low.includes("leaf")) return ["Trees organize data hierarchically using nodes and edges.","Root is at the top; leaves have no children.","Example: Folder and subfolder relationships form a hierarchy."];
+  if(low.includes("graph") || low.includes("bfs") || low.includes("dfs")) return ["Graphs model relationships using vertices and edges.","BFS explores level by level; DFS explores deeply.","Example: A network can be represented by vertices connected by edges."];
+  if(low.includes("binary search")) return ["Binary search works on sorted data by repeatedly reducing the search range.","Each step checks the middle element.","Example: Searching a sorted roll-number list by halves."];
+  if(low.includes("sort")) return ["Sorting arranges values into a required order.","Different algorithms use different strategies and time complexity.","Example: 5,2,4 becomes 2,4,5 in ascending order."];
+  if(low.includes("complexity") || low.includes("o(")) return ["Complexity describes how resource usage grows with input size.","Big-O helps compare algorithm growth.","Example: A loop over n items is commonly O(n)."];
+  if(low.includes("algebra") || low.includes("equation")) return ["Algebra represents unknown values using variables and solves relationships between expressions.","Substitute or transform expressions while maintaining equality.","Example: x+3=8 gives x=5."];
+  if(low.includes("grammar") || low.includes("noun") || low.includes("verb")) return ["Grammar gives rules for forming meaningful and correct sentences.","Identify the role of words in a sentence.","Example: In 'Riya runs', 'runs' is the verb."];
+  return ["Review the definition, identify the key idea and understand why the correct option is right.","Use the concept in a small example before moving to the next question.","Example: Apply the rule to a simple problem of the same type."];
+}
+
+function renderProblem(){
+  const box = document.getElementById("problemContainer");
+  const topics = getTopics();
+
+  if(!topics.length){
+    box.innerHTML = '<div class="empty">Problem-solving notes are not available for this profile yet.</div>';
+    return;
+  }
+
+  let html = "";
+  topics.forEach((topic, topicIdx)=>{
+    const bank = questionBank[topic] || [];
+    if(!bank.length) return;
+
+    html += `<div class="topic-card">
+      <div class="topic-header">
+        <h3>${esc(topic)}</h3>
+        <button onclick="toggleTopic('mcq-topic-${topicIdx}')">Open Quiz Notes ▼</button>
+      </div>
+      <div class="topic-body" id="mcq-topic-${topicIdx}">`;
+
+    for(let quizNo=1;quizNo<=10;quizNo++){
+      const idxs = buildQuiz(topic, quizNo);
+      html += `<div class="quiz-title">📝 Practice Quiz ${quizNo} — 10 MCQs</div>`;
+
+      idxs.forEach((idx,i)=>{
+        const q = bank[idx];
+        const ans = q.o[q.a];
+        const [exp,example,extra] = explanation(topic,q.q);
+
+        html += `<div class="mcq-note">
+          <h4>Question ${i+1}</h4>
+          <div class="question">${esc(q.q)}</div>
+          <div class="answer"><strong>✅ Correct Answer:</strong> ${esc(ans)}</div>
+          <div class="explain"><strong>📖 Concept / Explanation:</strong><br>${esc(exp)}<br>${esc(extra)}</div>
+          <div class="example"><strong>💡 Example:</strong><br>${esc(example)}</div>
+        </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  box.innerHTML = html || '<div class="empty">No problem-solving notes found.</div>';
+}
+
+function showSection(id){
+  document.querySelectorAll(".topic-section").forEach(x=>x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if(id === "theorySection") renderTheory();
+  if(id === "problemSection") renderProblem();
+
+  window.scrollTo({top:document.getElementById(id).offsetTop - 20,behavior:"smooth"});
+}
+
+function toggleTopic(id){
+  document.getElementById(id).classList.toggle("active");
+}
+
+function goBack(){
+  window.location.href = "learning.html";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartLearn - Quiz</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .navbar {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            color: #2563eb;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            border: none;
+            background: #eef2ff;
+            color: #2563eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 86%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-header h1 {
+            margin-bottom: 10px;
+        }
+
+        .quiz-header p {
+            opacity: 0.9;
+        }
+
+        .progress-area {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #2563eb;
+            transition: 0.3s;
+        }
+
+        .question-card {
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .question-number {
+            color: #2563eb;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .question {
+            font-size: 19px;
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            border: 2px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #2563eb;
+            background: #f8faff;
+        }
+
+        .option.selected {
+            border-color: #2563eb;
+            background: #eef2ff;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .nav-btn {
+            border: none;
+            padding: 13px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .previous {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .next {
+            background: #2563eb;
+            color: white;
+        }
+
+        .submit {
+            background: #16a34a;
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            display: none;
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .result h2 {
+            color: #2563eb;
+            margin-bottom: 15px;
+        }
+
+        .score-number {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 15px;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .weak {
+            color: #dc2626;
+        }
+
+        .result-btn {
+            border: none;
+            padding: 12px 20px;
+            margin: 8px;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .result-btn.secondary {
+            background: #e5e7eb;
+            color: #222;
+        }
+
+        footer {
+            background: #111827;
+            color: #bbb;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        @media(max-width: 600px) {
+            .container {
+                width: 92%;
+            }
+
+            .quiz-header h1 {
+                font-size: 25px;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+        SmartLearn
+    </div>
+
+    <button class="back-btn" onclick="goBack()">
+        ← Back to Learning
+    </button>
+
+</nav>
+
+
+<main class="container">
+
+    <section class="quiz-header">
+
+        <h1 id="quizTitle">
+            Practice Quiz
+        </h1>
+
+        <p id="quizInfo">
+            Answer the questions carefully.
+        </p>
+
+    </section>
+
+
+    <section class="progress-area">
+
+        <div class="progress-text">
+
+            <span id="progressText">
+                Question 1
+            </span>
+
+            <span id="answeredText">
+                0 answered
+            </span>
+
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                class="progress"
+                id="progressBar">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section id="quizArea"></section>
+
+
+    <div class="navigation">
+
+        <button
+            class="nav-btn previous"
+            id="previousBtn"
+            onclick="previousQuestion()">
+
+            ← Previous
+
+        </button>
+
+
+        <button
+            class="nav-btn next"
+            id="nextBtn"
+            onclick="nextQuestion()">
+
+            Next →
+
+        </button>
+
+
+        <button
+            class="nav-btn submit"
+            id="submitBtn"
+            onclick="submitQuiz()"
+            style="display:none;">
+
+            Submit Quiz ✓
+
+        </button>
+
+    </div>
+
+
+    <section class="result" id="resultArea">
+
+        <h2>
+            Quiz Completed 🎉
+        </h2>
+
+        <div
+            class="score-number"
+            id="scoreNumber">
+            0%
+        </div>
+
+        <p id="resultMessage"></p>
+
+        <p id="weakTopicMessage"></p>
+
+        <div id="weakPointAnalysis" style="margin:25px 0;text-align:left;"></div>
+
+        <div>
+
+            <button
+                class="result-btn"
+                onclick="retryQuiz()">
+
+                🔄 Retry Quiz
+
+            </button>
+
+
+            <button
+                class="result-btn secondary"
+                onclick="goBack()">
+
+                ← Back to Learning
+
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    © 2026 SmartLearn — AI-Powered Personal Learning System
+</footer>
+
+
+<script>
+
+/* ==========================================
+   LOAD PROFILE
+========================================== */
+
+const profileData =
+    localStorage.getItem("studentProfile");
+
+if (!profileData) {
+
+    alert("Please complete your profile first.");
+
+    window.location.href =
+        "student-profile.html";
+
+}
+
+const profile =
+    JSON.parse(profileData);
+
+
+/* ==========================================
+   SELECTED DATA
+========================================== */
+
+const selectedSubject =
+    localStorage.getItem("selectedSubject");
+
+const selectedTopic =
+    localStorage.getItem("selectedTopic");
+
+const selectedLevel =
+    Number(
+        localStorage.getItem("selectedLevel") || 1
+    );
+
+const quizMode =
+    localStorage.getItem("quizMode") || "practice";
+
+const quizNumber =
+    Number(
+        localStorage.getItem("selectedQuizNumber") || 1
+    );
+
+const finalAttempt =
+    Number(
+        localStorage.getItem("finalQuizAttempt") || 1
+    );
+
+
+if (!selectedSubject || !selectedTopic) {
+
+    alert("Topic information missing.");
+
+    window.location.href =
+        "learning.html";
+
+}
+
+
+/* ==========================================
+   QUESTION COUNT
+========================================== */
+
+function isSchoolStudent() {
+
+    if (!profile.standard) {
+        return false;
+    }
+
+    const standard =
+        parseInt(profile.standard);
+
+    return !isNaN(standard) &&
+           standard <= 10;
+
+}
+
+
+const questionCount =
+    quizMode === "final"
+    ? 15
+    : 10;
+
+
+/* ==========================================
+   STUDENT ID
+========================================== */
+
+const studentId =
+    profile.email ||
+    profile.mobile ||
+    profile.name ||
+    "student";
+
+
+/* ==========================================
+   PROGRESS KEY
+========================================== */
+
+const progressKey =
+    "smartLearnProgress_" +
+    studentId + "_" +
+    selectedSubject + "_" +
+    selectedTopic;
+
+
+let savedProgress =
+    localStorage.getItem(progressKey);
+
+
+let progress;
+
+
+if (savedProgress) {
+
+    try {
+
+        progress =
+            JSON.parse(savedProgress);
+
+    } catch {
+
+        progress = createNewProgress();
+
+    }
+
+} else {
+
+    progress = createNewProgress();
+
+}
+
+
+function createNewProgress() {
+
+    return {
+
+        quizzes: {},
+
+        finalAttempts: [],
+
+        finalScore: null,
+
+        completed: false
+
+    };
+
+}
+
+
+/* ==========================================
+   QUESTION BANK
+========================================== */
+
+const questionBank = {
+
+
+    /* =========================
+       LEVEL 1
+    ========================= */
+
+    "Arrays": [
+
+        {
+            q: "Which data structure stores elements in contiguous memory locations?",
+            o: ["Array", "Linked List", "Tree", "Graph"],
+            a: 0
+        },
+
+        {
+            q: "What is the first index of a typical zero-based array?",
+            o: ["0", "1", "-1", "2"],
+            a: 0
+        },
+
+        {
+            q: "Accessing an array element using its index usually takes:",
+            o: ["O(1)", "O(n)", "O(n²)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Which operation adds an element at the end of an array?",
+            o: ["Append", "Delete", "Search", "Sort"],
+            a: 0
+        },
+
+        {
+            q: "An array is generally best suited when:",
+            o: [
+                "Fast indexed access is required",
+                "Frequent random insertion is required",
+                "Only hierarchical data is needed",
+                "Only relationships are needed"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which index accesses the third element in a zero-based array?",
+            o: ["2", "3", "1", "0"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes an element from an array?",
+            o: ["Deletion", "Traversal", "Compilation", "Declaration"],
+            a: 0
+        },
+
+        {
+            q: "Which is a common application of arrays?",
+            o: [
+                "Storing collections of values",
+                "Representing only networks",
+                "Representing only files",
+                "Representing only processes"
+            ],
+            a: 0
+        },
+
+        {
+            q: "What is array traversal?",
+            o: [
+                "Visiting array elements",
+                "Deleting the array",
+                "Creating a database",
+                "Compiling code"
+            ],
+            a: 0
+        },
+
+        {
+            q: "A two-dimensional array is commonly used to represent:",
+            o: ["Matrix", "Stack only", "Queue only", "Tree only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Linked Lists": [
+
+        {
+            q: "A linked list consists mainly of:",
+            o: ["Nodes", "Indexes only", "Rows only", "Tables only"],
+            a: 0
+        },
+
+        {
+            q: "A node in a singly linked list normally contains:",
+            o: ["Data and next pointer", "Only data", "Only pointer", "Two arrays"],
+            a: 0
+        },
+
+        {
+            q: "The last node of a singly linked list points to:",
+            o: ["NULL", "First node always", "Previous node", "Root"],
+            a: 0
+        },
+
+        {
+            q: "Which linked list has links in both directions?",
+            o: ["Doubly linked list", "Singly linked list", "Circular array", "Binary tree"],
+            a: 0
+        },
+
+        {
+            q: "Linked lists are useful when frequent ______ is required.",
+            o: ["Insertion and deletion", "Random indexing", "Sorting only", "Compilation"],
+            a: 0
+        },
+
+        {
+            q: "A circular linked list connects the last node to:",
+            o: ["First node", "NULL", "Middle node", "Root"],
+            a: 0
+        },
+
+        {
+            q: "Unlike arrays, linked list nodes are generally:",
+            o: ["Not required to be contiguous", "Always contiguous", "Always sorted", "Always indexed"],
+            a: 0
+        },
+
+        {
+            q: "Which pointer is used to move through a linked list?",
+            o: ["Next pointer", "Root pointer", "Index pointer", "Matrix pointer"],
+            a: 0
+        }
+
+    ],
+
+
+    "Stacks": [
+
+        {
+            q: "A stack follows which principle?",
+            o: ["LIFO", "FIFO", "Random", "Priority only"],
+            a: 0
+        },
+
+        {
+            q: "Which operation inserts an element into a stack?",
+            o: ["Push", "Pop", "Peek", "Delete"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes the top element?",
+            o: ["Pop", "Push", "Peek", "Search"],
+            a: 0
+        },
+
+        {
+            q: "Which operation views the top element without removing it?",
+            o: ["Peek", "Pop", "Push", "Sort"],
+            a: 0
+        },
+
+        {
+            q: "Which problem commonly uses a stack?",
+            o: ["Function call management", "IP addressing", "Database normalization", "File compression only"],
+            a: 0
+        },
+
+        {
+            q: "If A, B and C are pushed into a stack, which is popped first?",
+            o: ["C", "A", "B", "None"],
+            a: 0
+        }
+
+    ],
+
+
+    "Queues": [
+
+        {
+            q: "A queue normally follows:",
+            o: ["FIFO", "LIFO", "Random", "Tree order"],
+            a: 0
+        },
+
+        {
+            q: "Which operation inserts an element into a queue?",
+            o: ["Enqueue", "Dequeue", "Pop", "Peek"],
+            a: 0
+        },
+
+        {
+            q: "Which operation removes an element from a queue?",
+            o: ["Dequeue", "Enqueue", "Push", "Insert"],
+            a: 0
+        },
+
+        {
+            q: "Which element is normally removed first from a queue?",
+            o: ["First inserted element", "Last inserted element", "Middle element", "Largest element"],
+            a: 0
+        },
+
+        {
+            q: "BFS commonly uses which data structure?",
+            o: ["Queue", "Stack", "Array only", "Tree only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Trees": [
+
+        {
+            q: "The topmost node in a tree is called:",
+            o: ["Root", "Leaf", "Edge", "Child"],
+            a: 0
+        },
+
+        {
+            q: "A node with no children is called:",
+            o: ["Leaf", "Root", "Parent", "Edge"],
+            a: 0
+        },
+
+        {
+            q: "A binary tree node can have at most:",
+            o: ["2 children", "1 child", "3 children", "4 children"],
+            a: 0
+        },
+
+        {
+            q: "Which structure represents hierarchical data?",
+            o: ["Tree", "Stack", "Queue", "Array only"],
+            a: 0
+        },
+
+        {
+            q: "The connection between two tree nodes is called:",
+            o: ["Edge", "Index", "Pointer only", "Row"],
+            a: 0
+        }
+
+    ],
+
+
+    "Graphs": [
+
+        {
+            q: "A graph consists mainly of:",
+            o: ["Vertices and edges", "Rows and columns", "Stacks and queues", "Keys and values only"],
+            a: 0
+        },
+
+        {
+            q: "BFS stands for:",
+            o: [
+                "Breadth First Search",
+                "Binary First Search",
+                "Basic File Search",
+                "Breadth File System"
+            ],
+            a: 0
+        },
+
+        {
+            q: "DFS stands for:",
+            o: [
+                "Depth First Search",
+                "Data File Search",
+                "Direct First Search",
+                "Depth File System"
+            ],
+            a: 0
+        },
+
+        {
+            q: "A graph with arrows on edges is called:",
+            o: ["Directed graph", "Binary graph", "Linear graph", "Static graph"],
+            a: 0
+        },
+
+        {
+            q: "A graph without direction on edges is called:",
+            o: ["Undirected graph", "Directed graph", "Binary graph", "Tree graph"],
+            a: 0
+        }
+
+    ],
+
+
+    "Searching & Sorting": [
+
+        {
+            q: "Binary search requires the data to be:",
+            o: ["Sorted", "Unsorted", "Encrypted", "Deleted"],
+            a: 0
+        },
+
+        {
+            q: "Linear search checks elements:",
+            o: ["Sequentially", "Randomly only", "In reverse only", "Using a tree"],
+            a: 0
+        },
+
+        {
+            q: "Which algorithm repeatedly compares adjacent elements?",
+            o: ["Bubble Sort", "Binary Search", "DFS", "BFS"],
+            a: 0
+        },
+
+        {
+            q: "Binary search generally has time complexity:",
+            o: ["O(log n)", "O(n²)", "O(n)", "O(1) always"],
+            a: 0
+        },
+
+        {
+            q: "Sorting means:",
+            o: [
+                "Arranging elements in an order",
+                "Deleting elements",
+                "Searching only",
+                "Compiling data"
+            ],
+            a: 0
+        }
+
+    ],
+
+
+    "Time Complexity": [
+
+        {
+            q: "Which complexity represents constant time?",
+            o: ["O(1)", "O(n)", "O(n²)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Which complexity is linear?",
+            o: ["O(n)", "O(1)", "O(log n)", "O(n²)"],
+            a: 0
+        },
+
+        {
+            q: "Which complexity grows logarithmically?",
+            o: ["O(log n)", "O(n)", "O(n²)", "O(1)"],
+            a: 0
+        },
+
+        {
+            q: "Two nested loops often result in:",
+            o: ["O(n²)", "O(1)", "O(log n)", "O(n)"],
+            a: 0
+        },
+
+        {
+            q: "Time complexity describes:",
+            o: [
+                "How algorithm running time grows",
+                "Computer screen size",
+                "File name length",
+                "Network speed only"
+            ],
+            a: 0
+        }
+
+    ],
+
+
+    "Algebra": [
+
+        {
+            q: "If x + 5 = 10, what is x?",
+            o: ["5", "10", "15", "0"],
+            a: 0
+        },
+
+        {
+            q: "What is 2x when x = 3?",
+            o: ["6", "5", "9", "3"],
+            a: 0
+        },
+
+        {
+            q: "An equation contains:",
+            o: ["Equality relation", "Only numbers", "Only letters", "Only operators"],
+            a: 0
+        },
+
+        {
+            q: "Which symbol commonly represents an unknown value?",
+            o: ["x", "=", "+", "/"],
+            a: 0
+        },
+
+        {
+            q: "What is 3²?",
+            o: ["9", "6", "3", "12"],
+            a: 0
+        }
+
+    ],
+
+
+    "Mechanics": [
+
+        {
+            q: "The rate of change of displacement is:",
+            o: ["Velocity", "Force", "Mass", "Energy"],
+            a: 0
+        },
+
+        {
+            q: "The rate of change of velocity is:",
+            o: ["Acceleration", "Distance", "Mass", "Work"],
+            a: 0
+        },
+
+        {
+            q: "Newton's second law relates force to:",
+            o: ["Mass and acceleration", "Time only", "Distance only", "Temperature"],
+            a: 0
+        },
+
+        {
+            q: "The SI unit of force is:",
+            o: ["Newton", "Joule", "Watt", "Pascal"],
+            a: 0
+        },
+
+        {
+            q: "Motion is studied under:",
+            o: ["Mechanics", "Optics", "Thermodynamics only", "Electronics"],
+            a: 0
+        }
+
+    ],
+
+
+    "Grammar": [
+
+        {
+            q: "Which word is a noun?",
+            o: ["Teacher", "Quickly", "Beautiful", "Run"],
+            a: 0
+        },
+
+        {
+            q: "Which word is a verb?",
+            o: ["Run", "Blue", "Table", "Slowly"],
+            a: 0
+        },
+
+        {
+            q: "Which sentence is grammatically correct?",
+            o: [
+                "She goes to school.",
+                "She go to school.",
+                "She going school.",
+                "She gone school."
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which tense describes an action happening now?",
+            o: ["Present continuous", "Past perfect", "Future perfect", "Past simple"],
+            a: 0
+        }
+
+    ],
+
+
+    /* =========================
+       LEVEL 2
+    ========================= */
+
+    "Binary Search Trees": [
+
+        {
+            q: "In a Binary Search Tree, values in the left subtree are generally:",
+            o: ["Smaller than the node", "Larger than the node", "Always equal", "Random"],
+            a: 0
+        },
+
+        {
+            q: "In a BST, values in the right subtree are generally:",
+            o: ["Greater than the node", "Smaller than the node", "Always equal", "Negative"],
+            a: 0
+        },
+
+        {
+            q: "Inorder traversal of a BST produces:",
+            o: ["Sorted order", "Reverse graph", "Random order", "Level count"],
+            a: 0
+        },
+
+        {
+            q: "Average search time in a balanced BST is:",
+            o: ["O(log n)", "O(n²)", "O(1)", "O(n³)"],
+            a: 0
+        },
+
+        {
+            q: "Worst-case search time in a skewed BST can become:",
+            o: ["O(n)", "O(log n)", "O(1)", "O(n²)"],
+            a: 0
+        }
+
+    ],
+
+
+    "AVL Trees": [
+
+        {
+            q: "AVL tree is a:",
+            o: ["Self-balancing BST", "Queue", "Graph", "Heap only"],
+            a: 0
+        },
+
+        {
+            q: "AVL balance factor is based on:",
+            o: ["Heights of left and right subtrees", "Number of arrays", "Graph edges", "Queue size"],
+            a: 0
+        },
+
+        {
+            q: "A valid AVL balance factor is generally:",
+            o: ["-1, 0, or 1", "2, 3, 4", "Only 0", "Only 1"],
+            a: 0
+        },
+
+        {
+            q: "AVL trees use rotations to:",
+            o: ["Restore balance", "Delete all nodes", "Sort arrays", "Create graphs"],
+            a: 0
+        }
+
+    ],
+
+
+    "Graph Traversal": [
+
+        {
+            q: "BFS normally uses which data structure?",
+            o: ["Queue", "Stack", "Heap only", "Array only"],
+            a: 0
+        },
+
+        {
+            q: "DFS can be implemented using:",
+            o: ["Stack or recursion", "Queue only", "Hash table only", "Database"],
+            a: 0
+        },
+
+        {
+            q: "BFS explores nodes generally:",
+            o: ["Level by level", "Randomly", "Only backwards", "By weight only"],
+            a: 0
+        },
+
+        {
+            q: "DFS explores:",
+            o: ["Deep before backtracking", "Only one node", "Only edges", "Only weights"],
+            a: 0
+        }
+
+    ],
+
+
+    "Shortest Path Algorithms": [
+
+        {
+            q: "Which algorithm is commonly used for shortest paths with non-negative edge weights?",
+            o: ["Dijkstra", "DFS", "Bubble Sort", "Binary Search"],
+            a: 0
+        },
+
+        {
+            q: "Bellman-Ford can handle:",
+            o: ["Negative edge weights", "Only positive numbers", "Arrays only", "Trees only"],
+            a: 0
+        },
+
+        {
+            q: "Floyd-Warshall is commonly used for:",
+            o: ["All-pairs shortest paths", "Sorting", "Stack operations", "String matching only"],
+            a: 0
+        }
+
+    ],
+
+
+    "Recursion & Backtracking": [
+
+        {
+            q: "A recursive function calls:",
+            o: ["Itself", "Only another program", "Database", "Compiler"],
+            a: 0
+        },
+
+        {
+            q: "A recursive algorithm should normally have:",
+            o: ["Base case", "Only loop", "Only array", "Only class"],
+            a: 0
+        },
+
+        {
+            q: "Backtracking explores a solution and:",
+            o: ["Reverts choices when needed", "Never changes choices", "Deletes all solutions", "Sorts arrays"],
+            a: 0
+        }
+
+    ],
+
+
+    "Dynamic Programming": [
+
+        {
+            q: "Dynamic Programming commonly stores:",
+            o: ["Results of overlapping subproblems", "Only input", "Only errors", "Network packets"],
+            a: 0
+        },
+
+        {
+            q: "Which is a common DP property?",
+            o: ["Overlapping subproblems", "Only recursion", "Only sorting", "Only graphs"],
+            a: 0
+        },
+
+        {
+            q: "Memoization is generally:",
+            o: ["Top-down DP", "Bottom-up only", "Sorting", "Graph traversal"],
+            a: 0
+        },
+
+        {
+            q: "Tabulation is generally:",
+            o: ["Bottom-up DP", "Top-down recursion only", "Searching", "Hashing"],
+            a: 0
+        }
+
+    ],
+
+
+    "Greedy Algorithms": [
+
+        {
+            q: "A greedy algorithm chooses:",
+            o: ["A locally best choice", "Always the worst choice", "Random choice", "Every possible choice"],
+            a: 0
+        },
+
+        {
+            q: "Greedy algorithms do not always:",
+            o: ["Produce a globally optimal solution", "Use decisions", "Process input", "Compare choices"],
+            a: 0
+        },
+
+        {
+            q: "Which is a classic greedy algorithm?",
+            o: ["Kruskal's algorithm", "Binary Search", "DFS only", "Bubble Sort"],
+            a: 0
+        }
+
+    ],
+
+
+    "Advanced Sorting": [
+
+        {
+            q: "Average time complexity of Quick Sort is generally:",
+            o: ["O(n log n)", "O(n²) always", "O(1)", "O(log n)"],
+            a: 0
+        },
+
+        {
+            q: "Merge Sort has time complexity:",
+            o: ["O(n log n)", "O(n²) always", "O(1)", "O(n³)"],
+            a: 0
+        },
+
+        {
+            q: "Merge Sort is based on:",
+            o: ["Divide and conquer", "Greedy only", "Backtracking only", "Hashing"],
+            a: 0
+        }
+
+    ],
+
+
+    "Advanced JavaScript": [
+
+        {
+            q: "Which feature allows JavaScript to handle asynchronous operations?",
+            o: ["Promises", "Only variables", "CSS", "HTML tags"],
+            a: 0
+        },
+
+        {
+            q: "async/await is used mainly with:",
+            o: ["Promises", "CSS selectors", "HTML tables", "SQL keys"],
+            a: 0
+        },
+
+        {
+            q: "Which keyword creates a constant binding?",
+            o: ["const", "varonly", "fixed", "constant"],
+            a: 0
+        }
+
+    ],
+
+
+    "DOM Manipulation": [
+
+        {
+            q: "DOM stands for:",
+            o: [
+                "Document Object Model",
+                "Data Object Method",
+                "Document Output Model",
+                "Digital Object Management"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which method selects an element by ID?",
+            o: ["getElementById()", "getIdOnly()", "selectID()", "findID()"],
+            a: 0
+        },
+
+        {
+            q: "Which property can change visible text?",
+            o: ["textContent", "database", "server", "hrefOnly"],
+            a: 0
+        }
+
+    ],
+
+
+    "APIs": [
+
+        {
+            q: "API stands for:",
+            o: [
+                "Application Programming Interface",
+                "Application Process Internet",
+                "Advanced Program Input",
+                "Application Page Index"
+            ],
+            a: 0
+        },
+
+        {
+            q: "Which HTTP method is commonly used to retrieve data?",
+            o: ["GET", "SEND", "FETCHONLY", "READDATA"],
+            a: 0
+        },
+
+        {
+            q: "JSON is commonly used for:",
+            o: ["Data exchange", "Styling", "Image editing", "Compilation"],
+            a: 0
+        }
+
+    ]
+
+};
+
+
+/* ==========================================
+   CURRENT QUESTIONS
+========================================== */
+
+let questions = [];
+
+let currentQuestion = 0;
+
+let answers = [];
+
+
+/* ==========================================
+   GET QUESTION BANK
+========================================== */
+
+function getQuestions() {
+
+    let bank =
+        questionBank[selectedTopic];
+
+
+    if (!bank || bank.length === 0) {
+
+        bank = [
+
+            {
+                q:
+                    "Which approach is most useful for mastering this topic?",
+
+                o: [
+                    "Understand concepts and practice",
+                    "Skip all practice",
+                    "Memorize without understanding",
+                    "Avoid examples"
+                ],
+
+                a: 0
+            },
+
+            {
+                q:
+                    "What should you do when you make a mistake?",
+
+                o: [
+                    "Review the concept and practice again",
+                    "Ignore it",
+                    "Stop learning",
+                    "Skip the topic"
+                ],
+
+                a: 0
+            },
+
+            {
+                q:
+                    "Why is practice important?",
+
+                o: [
+                    "It improves understanding",
+                    "It removes the need to learn",
+                    "It guarantees every answer",
+                    "It replaces concepts"
+                ],
+
+                a: 0
+            }
+
+        ];
+
+    }
+
+
+    return bank;
+
+}
+
+
+/* ==========================================
+   SHUFFLE
+========================================== */
+
+function shuffle(array) {
+
+    const copy =
+        [...array];
+
+    for (
+        let i = copy.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            copy[i],
+            copy[j]
+        ] =
+        [
+            copy[j],
+            copy[i]
+        ];
+
+    }
+
+    return copy;
+
+}
+
+
+/* ==========================================
+   CREATE QUESTIONS
+========================================== */
+
+function getProfileLevelWeight(question) {
+    const goal = String(profile.goal || "").toLowerCase();
+    const course = String(profile.course || "").toLowerCase();
+    const branch = String(profile.branch || "").toLowerCase();
+    const standard = parseInt(profile.standard);
+
+    const q = question.q.toLowerCase();
+    let weight = 1;
+
+    // Goal-based matching
+    if (goal.includes("jee")) {
+        if (["mechanics", "algebra", "physics", "chemistry"].some(x => q.includes(x))) weight += 2;
+    }
+    if (goal.includes("neet")) {
+        if (["biology", "cell", "genetics", "physiology", "chemistry"].some(x => q.includes(x))) weight += 2;
+    }
+    if (goal.includes("software") || goal.includes("ai/ml") || goal.includes("ai/ml engineer")) {
+        if (["programming", "javascript", "array", "linked", "stack", "queue", "tree", "graph", "api", "dom"].some(x => q.includes(x))) weight += 2;
+    }
+
+    // Branch/course matching
+    if (branch.includes("cse") || branch.includes("computer") || branch.includes("it") ||
+        course.includes("b.tech") || course.includes("computer")) {
+        if (["array", "linked", "stack", "queue", "tree", "graph", "complexity", "javascript", "api", "dom"].some(x => q.includes(x))) {
+            weight += 2;
+        }
+    }
+
+    // School standard keeps questions at an accessible foundation level.
+    if (!isNaN(standard) && standard >= 5 && standard <= 10) {
+        if (["basic", "definition", "first index", "noun", "verb", "velocity", "force", "equation"].some(x => q.includes(x))) {
+            weight += 2;
+        }
+    }
+
+    return weight;
+}
+
+function getWeakConcepts() {
+    const recent = [];
+
+    // Current topic result
+    if (progress && progress.quizzes) {
+        Object.keys(progress.quizzes).forEach(key => {
+            const item = progress.quizzes[key];
+            if (item && item.analysis) recent.push(...item.analysis);
+        });
+    }
+
+    // Latest compatibility result
+    try {
+        const latest = JSON.parse(localStorage.getItem("practiceResult") || "null");
+        if (latest && latest.weakConcepts) recent.push(...latest.weakConcepts);
+    } catch (e) {}
+
+    const weak = {};
+    recent.forEach(item => {
+        const concept = item.concept || item;
+        weak[concept] = (weak[concept] || 0) + (Number(item.wrong) || 1);
+    });
+
+    return weak;
+}
+
+function generateQuestions() {
+
+    let bank = getQuestions();
+
+    /*
+       Practice = 10 MCQs
+       Final = 15 MCQs
+
+       Selection:
+       1. Student profile gives a relevance score.
+       2. Weak concepts from previous attempts get higher priority.
+       3. Final selection is still randomized.
+       4. Options and question order are randomized.
+    */
+
+    const weakConcepts = getWeakConcepts();
+
+    const ranked = bank.map((q, index) => {
+        const concept = detectConcept(q);
+        let weight = getProfileLevelWeight(q);
+
+        if (weakConcepts[concept]) {
+            // More mistakes => more likely to appear again.
+            weight += Math.min(5, weakConcepts[concept] * 1.5);
+        }
+
+        return { q, index, weight };
+    });
+
+    // Weighted random selection without forcing duplicates until the bank is exhausted.
+    const pool = [...ranked];
+    const selected = [];
+
+    while (selected.length < questionCount && pool.length) {
+        const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+        let pick = Math.random() * totalWeight;
+        let chosenIndex = 0;
+
+        for (let i = 0; i < pool.length; i++) {
+            pick -= pool[i].weight;
+            if (pick <= 0) {
+                chosenIndex = i;
+                break;
+            }
+        }
+
+        selected.push(pool[chosenIndex].q);
+        pool.splice(chosenIndex, 1);
+    }
+
+    questions = selected.map(original => {
+        const question = {
+            q: original.q,
+            o: shuffle(original.o),
+            correctText: original.o[original.a]
+        };
+
+        question.answer = question.o.indexOf(question.correctText);
+        return question;
+    });
+
+    questions = shuffle(questions);
+    answers = new Array(questions.length).fill(null);
+}
+
+
+/* ==========================================
+   TITLE
+========================================== */
+
+if (quizMode === "final") {
+
+    document.getElementById(
+        "quizTitle"
+    ).textContent =
+        "🏆 Final Quiz";
+
+    document.getElementById(
+        "quizInfo"
+    ).textContent =
+        selectedTopic +
+        " • Level " +
+        selectedLevel +
+        " • Final Attempt " +
+        finalAttempt +
+        " • " +
+        questionCount +
+        " Questions";
+
+}
+
+else {
+
+    document.getElementById(
+        "quizTitle"
+    ).textContent =
+        "📝 Practice Quiz " +
+        quizNumber;
+
+    document.getElementById(
+        "quizInfo"
+    ).textContent =
+        selectedTopic +
+        " • Level " +
+        selectedLevel +
+        " • " +
+        questionCount +
+        " Questions";
+
+}
+
+
+/* ==========================================
+   RENDER QUESTION
+========================================== */
+
+function renderQuestion() {
+
+    const quizArea =
+        document.getElementById(
+            "quizArea"
+        );
+
+
+    const q =
+        questions[currentQuestion];
+
+
+    quizArea.innerHTML = `
+
+        <div class="question-card">
+
+            <div class="question-number">
+
+                Question
+                ${currentQuestion + 1}
+                of
+                ${questions.length}
+
+            </div>
+
+            <div class="question">
+
+                ${q.q}
+
+            </div>
+
+            <div class="options">
+
+                ${
+                    q.o.map(
+                        (option, index) => `
+
+                            <label
+                                class="option
+                                ${
+                                    answers[currentQuestion]
+                                    === index
+                                    ? "selected"
+                                    : ""
+                                }">
+
+                                <input
+                                    type="radio"
+                                    name="answer"
+                                    value="${index}"
+                                    ${
+                                        answers[currentQuestion]
+                                        === index
+                                        ? "checked"
+                                        : ""
+                                    }
+                                    onchange="selectAnswer(${index})">
+
+                                ${option}
+
+                            </label>
+
+                        `
+                    ).join("")
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    updateProgress();
+
+
+    document.getElementById(
+        "previousBtn"
+    ).disabled =
+        currentQuestion === 0;
+
+
+    if (
+        currentQuestion ===
+        questions.length - 1
+    ) {
+
+        document.getElementById(
+            "nextBtn"
+        ).style.display =
+            "none";
+
+        document.getElementById(
+            "submitBtn"
+        ).style.display =
+            "block";
+
+    }
+
+    else {
+
+        document.getElementById(
+            "nextBtn"
+        ).style.display =
+            "block";
+
+        document.getElementById(
+            "submitBtn"
+        ).style.display =
+            "none";
+
+    }
+
+}
+
+
+/* ==========================================
+   SELECT ANSWER
+========================================== */
+
+function selectAnswer(index) {
+
+    answers[currentQuestion] =
+        index;
+
+    renderQuestion();
+
+}
+
+
+/* ==========================================
+   NEXT
+========================================== */
+
+function nextQuestion() {
+
+    if (
+        answers[currentQuestion] === null
+    ) {
+
+        alert(
+            "Please select an answer first."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        currentQuestion <
+        questions.length - 1
+    ) {
+
+        currentQuestion++;
+
+        renderQuestion();
+
+    }
+
+}
+
+
+/* ==========================================
+   PREVIOUS
+========================================== */
+
+function previousQuestion() {
+
+    if (
+        currentQuestion > 0
+    ) {
+
+        currentQuestion--;
+
+        renderQuestion();
+
+    }
+
+}
+
+
+/* ==========================================
+   PROGRESS
+========================================== */
+
+function updateProgress() {
+
+    const answered =
+        answers.filter(
+            answer =>
+                answer !== null
+        ).length;
+
+
+    const percentage =
+        (
+            answered /
+            questions.length
+        ) * 100;
+
+
+    document.getElementById(
+        "progressBar"
+    ).style.width =
+        percentage + "%";
+
+
+    document.getElementById(
+        "progressText"
+    ).textContent =
+        "Question " +
+        (currentQuestion + 1) +
+        " of " +
+        questions.length;
+
+
+    document.getElementById(
+        "answeredText"
+    ).textContent =
+        answered +
+        " answered";
+
+}
+
+
+/* ==========================================
+   WEAK POINT DETECTION
+========================================== */
+
+function detectConcept(question) {
+    const text = question.q.toLowerCase();
+    const rules = [
+        ["time complexity", ["complexity", "o(1)", "o(n)", "o(log n)", "o(n²)", "running time"]],
+        ["array indexing", ["index", "indexed"]],
+        ["array traversal", ["traversal", "visiting array"]],
+        ["array insertion/deletion", ["insertion", "deletion", "append"]],
+        ["linked-list nodes and pointers", ["node", "pointer"]],
+        ["stack operations", ["stack", "push", "pop", "peek", "lifo"]],
+        ["queue operations", ["queue", "enqueue", "dequeue", "fifo"]],
+        ["tree structure", ["root", "leaf", "children", "edge", "hierarchical"]],
+        ["graph basics", ["vertices", "edges", "directed", "undirected"]],
+        ["BFS traversal", ["bfs", "breadth"]],
+        ["DFS traversal", ["dfs", "depth"]],
+        ["binary search", ["binary search", "sorted"]],
+        ["sorting", ["sort", "sorting", "bubble", "merge sort", "quick sort"]],
+        ["algebraic equations", ["equation", "x +", "2x", "unknown", "3²"]],
+        ["mechanics", ["velocity", "acceleration", "force", "newton", "motion"]],
+        ["grammar", ["noun", "verb", "tense", "grammatically"]],
+        ["BST properties", ["binary search tree", "bst", "left subtree", "right subtree", "inorder"]],
+        ["AVL balancing", ["avl", "balance factor", "rotation", "rotations"]],
+        ["shortest path algorithms", ["dijkstra", "bellman", "floyd-warshall", "shortest path"]],
+        ["recursion and backtracking", ["recursive", "recursion", "backtracking", "base case"]],
+        ["dynamic programming", ["dynamic programming", "memoization", "tabulation", "subproblems"]],
+        ["greedy algorithms", ["greedy", "locally best", "globally optimal", "kruskal"]],
+        ["JavaScript asynchronous programming", ["promise", "async", "await", "asynchronous"]],
+        ["DOM manipulation", ["dom", "getelementbyid", "textcontent"]],
+        ["APIs and JSON", ["api", "http", "json", "get"]]
+    ];
+    for (const [concept, words] of rules) {
+        if (words.some(w => text.includes(w))) return concept;
+    }
+    return selectedTopic;
+}
+
+function buildWeakPointAnalysis() {
+    const stats = {};
+    questions.forEach((q, i) => {
+        const concept = detectConcept(q);
+        if (!stats[concept]) stats[concept] = { total: 0, wrong: 0, correct: 0 };
+        stats[concept].total++;
+        if (answers[i] === q.answer) stats[concept].correct++;
+        else stats[concept].wrong++;
+    });
+    return Object.entries(stats)
+        .map(([concept, v]) => ({ concept, ...v, accuracy: Math.round((v.correct / v.total) * 100) }))
+        .filter(v => v.wrong > 0)
+        .sort((a,b) => b.wrong - a.wrong || a.accuracy - b.accuracy);
+}
+
+/* ==========================================
+   SUBMIT
+========================================== */
+
+function submitQuiz() {
+
+    const unanswered =
+        answers.filter(
+            answer =>
+                answer === null
+        ).length;
+
+
+    if (unanswered > 0) {
+
+        alert(
+            "Please answer all " +
+            unanswered +
+            " remaining question(s)."
+        );
+
+        return;
+
+    }
+
+
+    let correct = 0;
+
+
+    questions.forEach(
+        (question, index) => {
+
+            if (
+                answers[index] ===
+                question.answer
+            ) {
+
+                correct++;
+
+            }
+
+        }
+    );
+
+
+    const score =
+        Math.round(
+            (
+                correct /
+                questions.length
+            ) * 100
+        );
+
+
+    if (
+        quizMode === "practice"
+    ) {
+
+        savePracticeResult(
+            score,
+            correct
+        );
+
+    }
+
+    else {
+
+        saveFinalResult(
+            score,
+            correct
+        );
+
+    }
+
+
+    showResult(
+        score,
+        correct
+    );
+
+}
+
+
+/* ==========================================
+   SAVE PRACTICE RESULT
+========================================== */
+
+function savePracticeResult(
+    score,
+    correct
+) {
+
+    const analysisForStorage = buildWeakPointAnalysis();
+
+    progress.quizzes[quizNumber] = {
+
+        score: score,
+
+        correct: correct,
+
+        total: questions.length,
+
+        analysis: analysisForStorage,
+
+        date:
+            new Date().toISOString()
+
+    };
+
+
+    localStorage.setItem(
+        progressKey,
+        JSON.stringify(progress)
+    );
+
+
+    /*
+       Compatibility storage
+       for AI Focus Area.
+    */
+
+    localStorage.setItem(
+        "practiceResult",
+        JSON.stringify({
+
+            score: score,
+
+            total:
+                questions.length,
+
+            weakTopic:
+                score < 70
+                ? selectedTopic
+                : null,
+
+            weakConcepts:
+                analysisForStorage,
+
+            subject:
+                selectedSubject,
+
+            topic:
+                selectedTopic
+
+        })
+    );
+
+}
+
+
+/* ==========================================
+   SAVE FINAL RESULT
+========================================== */
+
+function saveFinalResult(
+    score,
+    correct
+) {
+
+    if (
+        !progress.finalAttempts
+    ) {
+
+        progress.finalAttempts = [];
+
+    }
+
+
+    progress.finalAttempts.push({
+
+        attempt:
+            finalAttempt,
+
+        score:
+            score,
+
+        correct:
+            correct,
+
+        total:
+            questions.length,
+
+        date:
+            new Date().toISOString()
+
+    });
+
+
+    progress.finalScore =
+        score;
+
+
+    /*
+       Topic is completed only
+       when Final Quiz >= 70%.
+    */
+
+    if (
+        score >= 70
+    ) {
+
+        progress.completed =
+            true;
+
+    }
+
+    else {
+
+        progress.completed =
+            false;
+
+    }
+
+
+    localStorage.setItem(
+        progressKey,
+        JSON.stringify(progress)
+    );
+
+
+    localStorage.setItem(
+        "practiceResult",
+        JSON.stringify({
+
+            score: score,
+
+            total:
+                questions.length,
+
+            weakTopic:
+                score < 70
+                ? selectedTopic
+                : null,
+
+            subject:
+                selectedSubject,
+
+            topic:
+                selectedTopic
+
+        })
+    );
+
+}
+
+
+/* ==========================================
+   SHOW RESULT
+========================================== */
+
+function showResult(
+    score,
+    correct
+) {
+
+    document.getElementById(
+        "quizArea"
+    ).style.display =
+        "none";
+
+
+    document.querySelector(
+        ".navigation"
+    ).style.display =
+        "none";
+
+
+    document.querySelector(
+        ".progress-area"
+    ).style.display =
+        "none";
+
+
+    const result =
+        document.getElementById(
+            "resultArea"
+        );
+
+
+    result.style.display =
+        "block";
+
+
+    document.getElementById(
+        "scoreNumber"
+    ).textContent =
+        score + "%";
+
+
+    const message =
+        document.getElementById(
+            "resultMessage"
+        );
+
+
+    const weak =
+        document.getElementById(
+            "weakTopicMessage"
+        );
+
+    const analysis = buildWeakPointAnalysis();
+    const analysisArea = document.getElementById("weakPointAnalysis");
+    if (analysis.length) {
+        analysisArea.innerHTML = `
+            <h3 style="color:#dc2626;margin-bottom:12px;">Weak Point Analysis</h3>
+            <p style="margin-bottom:15px;color:#555;">The following concepts need the most improvement based on your incorrect answers.</p>
+            ${analysis.slice(0,3).map((item, index) => `
+                <div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:10px 0;background:#fff7f7;">
+                    <strong>${index + 1}. ${item.concept}</strong>
+                    <div style="margin-top:7px;color:#555;">Accuracy: ${item.accuracy}% • Mistakes: ${item.wrong}/${item.total}</div>
+                    <div style="margin-top:6px;color:#dc2626;font-weight:bold;">Needs Improvement: ${item.concept}</div>
+                    <div style="margin-top:6px;color:#555;">Recommended: Review this concept and practice similar questions.</div>
+                </div>`).join("")}
+        `;
+    } else {
+        analysisArea.innerHTML = `<h3 style="color:#15803d;">Weak Point Analysis</h3><p style="color:#15803d;margin-top:8px;">No specific weak point detected in this quiz. Keep practicing to maintain your performance.</p>`;
+    }
+
+
+    if (
+        score >= 70
+    ) {
+
+        message.className =
+            "success";
+
+        message.textContent =
+            "Excellent! You have achieved 70% or above.";
+
+        weak.textContent =
+            "✓ Good performance in " +
+            selectedTopic +
+            ".";
+
+        weak.className =
+            "success";
+
+    }
+
+    else {
+
+        message.className =
+            "weak";
+
+        message.textContent =
+            "You need more practice.";
+
+        weak.textContent =
+            "AI Focus Area: " +
+            selectedTopic +
+            ". Review the learning material and retry.";
+
+        weak.className =
+            "weak";
+
+    }
+
+}
+
+
+/* ==========================================
+   RETRY QUIZ
+========================================== */
+
+function retryQuiz() {
+
+    if (
+        quizMode === "final"
+    ) {
+
+        const nextAttempt =
+            finalAttempt + 1;
+
+
+        localStorage.setItem(
+            "finalQuizAttempt",
+            nextAttempt
+        );
+
+    }
+
+
+    window.location.reload();
+
+}
+
+
+/* ==========================================
+   BACK
+========================================== */
+
+function goBack() {
+
+    window.location.href =
+        "topic-learning.html";
+
+}
+
+
+/* ==========================================
+   START
+========================================== */
+
+generateQuestions();
+
+renderQuestion();
+
+</script>
+
+</body>
+</html>
