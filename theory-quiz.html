@@ -15,8 +15,6 @@ input[type=file]{display:none}.preview{width:100%;max-height:400px;object-fit:co
 .answer-box{width:100%;min-height:110px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;resize:vertical;font-size:15px;margin-top:10px}
 .check-btn,.final-submit{width:100%;border:none;padding:13px;color:white;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:12px}.check-btn{background:#2563eb}.final-submit{background:#16a34a;font-size:16px;margin-bottom:30px}
 .result{margin-top:15px;padding:15px;border-radius:8px;background:#f8fafc;line-height:1.6;display:none}.result-card{display:none}
-.ai-result-title{font-size:18px;font-weight:800;margin-bottom:10px}.ai-points{margin-top:10px}.ai-points ul{margin:6px 0 0 20px;padding:0}.ai-points li{margin:4px 0}.ai-feedback,.ai-improvement{margin-top:10px;padding:10px;border-radius:8px;background:#fff}.ai-improvement{border-left:4px solid #2563eb}.ai-feedback{border-left:4px solid #16a34a}.check-btn:disabled{opacity:.7;cursor:wait}
-
 @media(max-width:700px){.container{width:92%}.navbar{padding:0 4%}}
 </style>
 </head>
@@ -64,94 +62,68 @@ function previewPhoto(i,input){
  const r=document.getElementById("result-"+i);r.style.display="block";r.textContent="Photo selected. Click “Check This Answer”.";
 }
 
-function fileToBase64(file){
+async function fileToBase64(file){
  return new Promise((resolve,reject)=>{
   const reader=new FileReader();
-  reader.onload=()=>resolve(String(reader.result).split(",")[1] || "");
+  reader.onload=()=>resolve(reader.result);
   reader.onerror=reject;
   reader.readAsDataURL(file);
  });
 }
 
-function escapeHtml(value){
- return String(value ?? "")
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;")
-  .replace(/'/g,"&#039;");
-}
-
-function pointsHtml(title, points){
- if(!Array.isArray(points) || points.length===0) return "";
- return `<div class="ai-points"><strong>${title}</strong><ul>${points.map(p=>`<li>${escapeHtml(p)}</li>`).join("")}</ul></div>`;
-}
-
 async function checkAnswer(i){
  const typed=document.getElementById("text-"+i).value.trim();
- const photo=answers[i].photo;
- if(!typed&&!photo){
+ if(!typed&&!answers[i].photo){
   alert("Please upload the answer photo or type an answer.");
   return;
  }
 
- answers[i].text=typed;
  const r=document.getElementById("result-"+i);
- const btn=document.querySelectorAll(".check-btn")[i];
  r.style.display="block";
- r.innerHTML="<strong>🤖 AI is checking your answer...</strong><br>Please wait. Handwriting is being read and evaluated.";
- if(btn){btn.disabled=true;btn.textContent="⏳ Checking...";}
+ r.innerHTML="<strong>🤖 AI is checking your answer...</strong><br>Please wait.";
 
  try{
   let imageBase64="";
-  if(photo){
-   imageBase64=await fileToBase64(photo);
+  if(answers[i].photo){
+   imageBase64=await fileToBase64(answers[i].photo);
   }
 
-  const response=await fetch("https://smartlearn-v385.onrender.com/check-theory-answer",{
+  const response=await fetch("https://smartlearn-1-4fsq.onrender.com/check-theory-answer",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
    body:JSON.stringify({
     question:session.questions[i],
     expectedAnswer:"",
+    imageBase64:imageBase64,
     studentAnswer:typed,
-    imageBase64,
-    profile,
-    subject:session.subject,
-    topic:session.topic
+    profile:profile,
+    subject:session.subject||"",
+    topic:session.topic||""
    })
   });
 
   const data=await response.json();
-  if(!response.ok) throw new Error(data.error || "AI checking failed");
+  if(!response.ok) throw new Error(data.details||data.error||"Theory checking failed");
 
   answers[i].marks=Number(data.marks)||0;
   answers[i].checked=true;
 
   r.innerHTML=`
-   <div class="ai-result-title">✅ AI Evaluation: ${answers[i].marks}/5</div>
-   ${pointsHtml("✔ Correct Points",data.correctPoints)}
-   ${pointsHtml("⚠ Missing Points",data.missingPoints)}
-   ${pointsHtml("❌ Wrong / Incorrect Points",data.wrongPoints)}
-   <div class="ai-feedback"><strong>💬 Feedback:</strong><br>${escapeHtml(data.feedback || "No feedback provided.")}</div>
-   <div class="ai-improvement"><strong>🎯 Improvement:</strong><br>${escapeHtml(data.improvement || "Revise the important points and try again.")}</div>
-  `;
-
+   <strong>🤖 AI Evaluation: ${answers[i].marks}/5</strong>
+   <br><br><strong>✅ Correct Points:</strong><br>${(data.correctPoints||[]).map(x=>"• "+x).join("<br>")||"None identified"}
+   <br><br><strong>⚠️ Missing Points:</strong><br>${(data.missingPoints||[]).map(x=>"• "+x).join("<br>")||"None"}
+   <br><br><strong>❌ Wrong Points:</strong><br>${(data.wrongPoints||[]).map(x=>"• "+x).join("<br>")||"None"}
+   <br><br><strong>💬 Feedback:</strong><br>${data.feedback||"No feedback"}
+   <br><br><strong>💡 Improvement:</strong><br>${data.improvement||"Keep practicing."}`;
  }catch(error){
-  console.error(error);
-  answers[i].checked=false;
-  r.innerHTML=`<strong>❌ AI checking failed</strong><br>${escapeHtml(error.message)}<br><small>Make sure the SmartLearn backend is running and Ollama has <b>llama3.2-vision</b>.</small>`;
- }finally{
-  if(btn){btn.disabled=false;btn.textContent="🤖 Check Again";}
+  console.error("Theory AI Error:",error);
+  r.innerHTML="<strong>⚠️ AI checking failed.</strong><br>"+error.message+"<br><br>Please try again.";
  }
 }
 
+
 function submitTheoryQuiz(){
- if(answers.some(a=>!a.checked)){
-   alert("Please check all 5 theory answers before submitting.");
-   return;
- }
- let marks=answers.reduce((s,a)=>s+a.marks,0);
+ let marks=answers.reduce((s,a)=>s+(a.checked?a.marks:0),0);
  const totalMarks=25,score=Math.round(marks/totalMarks*100);
  const key="smartLearnTheoryProgress_"+studentId+"_"+session.subject+"_"+session.topic+"_"+session.level+"_"+session.quizNumber;
  localStorage.setItem(key,JSON.stringify({score,marks,totalMarks,sessionId,completedAt:new Date().toISOString()}));
