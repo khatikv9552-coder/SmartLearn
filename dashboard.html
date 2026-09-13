@@ -1,16 +1,12 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>SmartLearn - Dashboard</title>
-
 
     <style>
 
@@ -21,504 +17,255 @@
             font-family: Arial, sans-serif;
         }
 
-
         body {
             background: #f4f7fb;
             color: #1f2937;
         }
 
-
         /* NAVBAR */
 
         .navbar {
-
             background: white;
-
             padding: 18px 7%;
-
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
-            box-shadow:
-                0 2px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         }
 
-
         .logo {
-
             font-size: 24px;
-
             font-weight: bold;
-
             color: #2563eb;
         }
 
-
         .logout {
-
             border: none;
-
             background: #ef4444;
-
             color: white;
-
             padding: 9px 18px;
-
             border-radius: 7px;
-
             cursor: pointer;
         }
-
 
         /* MAIN */
 
         .container {
-
             width: 86%;
-
             margin: 30px auto;
         }
-
 
         /* WELCOME */
 
         .welcome {
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #4f46e5
-                );
-
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
             color: white;
-
             padding: 30px;
-
             border-radius: 15px;
-
             margin-bottom: 25px;
         }
 
-
         .welcome h1 {
-
             margin-bottom: 8px;
         }
 
-
         .profile {
-
             margin-top: 15px;
-
             font-size: 14px;
         }
-
 
         /* STATS */
 
         .cards {
-
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 18px;
-
             margin-bottom: 30px;
         }
 
-
         .card {
-
             background: white;
-
             padding: 22px;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0,0,0,0.07);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
         }
 
-
         .card h3 {
-
             font-size: 14px;
-
             color: #6b7280;
-
             margin-bottom: 10px;
         }
 
-
         .card p {
-
             font-size: 25px;
-
             font-weight: bold;
         }
 
-
-        /* MAIN GRID */
+        /* GRID */
 
         .main-grid {
-
             display: grid;
-
-            grid-template-columns:
-                2fr 1fr;
-
+            grid-template-columns: 2fr 1fr;
             gap: 20px;
         }
 
-
         .section {
-
             background: white;
-
             padding: 25px;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0,0,0,0.07);
-
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
             margin-bottom: 20px;
         }
-
 
         .section h2 {
-
             margin-bottom: 20px;
         }
 
-
-        /* SUBJECT */
+        /* CONTINUE LEARNING */
 
         .subject {
-
             border: 1px solid #e5e7eb;
-
             padding: 18px;
-
             border-radius: 10px;
-
             margin-bottom: 12px;
 
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
-            gap: 15px;
         }
 
-
         .subject-name {
-
             font-weight: bold;
-
             font-size: 16px;
         }
 
-
         .subject-info {
-
             color: #6b7280;
-
             font-size: 13px;
-
             margin-top: 5px;
         }
 
-
         .learn-btn {
-
             background: #2563eb;
-
             color: white;
-
             border: none;
-
             padding: 10px 17px;
-
             border-radius: 7px;
-
             cursor: pointer;
-
-            white-space: nowrap;
         }
-
 
         .learn-btn:hover {
-
             background: #1d4ed8;
         }
-
 
         /* LEVEL */
 
         .level-box {
-
             background: #eff6ff;
-
             padding: 20px;
-
             border-radius: 10px;
-
-            margin-bottom: 15px;
         }
-
-
-        .level-box h3 {
-
-            color: #1e3a8a;
-
-            margin-bottom: 8px;
-        }
-
 
         .progress-bar {
-
             width: 100%;
-
             height: 10px;
-
             background: #dbeafe;
-
             border-radius: 20px;
-
             overflow: hidden;
-
             margin-top: 12px;
         }
 
-
         .progress {
-
             width: 0%;
-
             height: 100%;
-
             background: #2563eb;
-
-            transition: 0.4s;
         }
 
-
-        .progress-text {
-
-            margin-top: 8px;
-
-            font-size: 14px;
-        }
-
-
-        .level2 {
-
-            background: #f0fdf4;
-
-            border: 1px solid #bbf7d0;
-        }
-
-
-        .level2 h3 {
-
-            color: #15803d;
-        }
-
-
-        .locked {
-
-            opacity: 0.7;
-        }
-
-
-        .lock-text {
-
-            color: #dc2626;
-
-            font-weight: bold;
-
-            margin-top: 8px;
-        }
-
-
-        .unlock-text {
-
-            color: #15803d;
-
-            font-weight: bold;
-
-            margin-top: 8px;
-        }
-
-
-        /* WEAK TOPIC */
+        /* AI FOCUS */
 
         .weak-topic {
-
-            border-left:
-                5px solid #ef4444;
-
+            border-left: 5px solid #ef4444;
             background: #fef2f2;
-
             padding: 18px;
-
             border-radius: 8px;
         }
 
-
         .weak-topic h3 {
-
             color: #dc2626;
-
             margin-bottom: 7px;
         }
-
-
-        .weak-topic p {
-
-            line-height: 1.5;
-        }
-
 
         /* ACTIONS */
 
         .action-btn {
-
             width: 100%;
-
             padding: 13px;
-
             margin-top: 10px;
-
             border: none;
-
             border-radius: 8px;
-
             background: #2563eb;
-
             color: white;
-
             font-size: 15px;
-
             cursor: pointer;
         }
-
 
         .action-btn:hover {
-
             background: #1d4ed8;
         }
-
-
-        /* LEVEL 2 BUTTON */
-
-        .advanced-btn {
-
-            width: 100%;
-
-            padding: 12px;
-
-            margin-top: 12px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            background: #15803d;
-
-            color: white;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-
-        .advanced-btn:disabled {
-
-            background: #9ca3af;
-
-            cursor: not-allowed;
-        }
-
-
-        /* EMPTY */
-
-        .empty {
-
-            color: #6b7280;
-
-            padding: 15px 0;
-        }
-
 
         /* MOBILE */
 
         @media(max-width: 900px) {
 
             .cards {
-
-                grid-template-columns:
-                    repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
 
-
             .main-grid {
-
                 grid-template-columns: 1fr;
             }
 
         }
 
+        /* STUDY PLAN */
+        .study-plan { background:white; padding:22px; border-radius:14px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-top:20px; }
+        .study-plan-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+        .plan-badge { background:#eef2ff; color:#2563eb; padding:7px 12px; border-radius:20px; font-size:13px; font-weight:bold; white-space:nowrap; }
+        .plan-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+        .plan-item { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; }
+        .plan-item h4 { margin-bottom:7px; color:#1e3a8a; }
+        .plan-item p { color:#64748b; font-size:14px; line-height:1.5; }
+        .plan-tip { margin-top:14px; padding:13px; border-left:4px solid #2563eb; background:#eff6ff; border-radius:7px; line-height:1.5; }
+        @media(max-width: 900px) {
+            .plan-grid { grid-template-columns:repeat(2,1fr); }
+        }
 
         @media(max-width: 600px) {
+            .plan-grid { grid-template-columns:1fr; }
 
             .container {
-
                 width: 92%;
             }
 
-
             .cards {
-
                 grid-template-columns: 1fr;
             }
 
-
             .navbar {
-
-                padding:
-                    15px 4%;
+                padding: 15px 4%;
             }
 
-
             .welcome {
-
                 padding: 22px;
             }
 
-
             .subject {
-
                 flex-direction: column;
-
                 align-items: flex-start;
+                gap: 12px;
             }
 
-
             .learn-btn {
-
                 width: 100%;
             }
 
@@ -537,11 +284,8 @@
     <nav class="navbar">
 
         <div class="logo">
-
-            SmartLearn 🤖
-
+            SmartLearn
         </div>
-
 
         <button
             class="logout"
@@ -554,6 +298,7 @@
     </nav>
 
 
+    <!-- MAIN -->
 
     <main class="container">
 
@@ -563,54 +308,33 @@
         <section class="welcome">
 
             <h1>
-
-                Welcome,
-                <span id="studentName">
-                    Student
-                </span>
-                👋
-
+                Welcome, <span id="studentName">Student</span> 👋
             </h1>
 
-
             <p>
-
-                Your personalized AI learning
-                journey starts here.
-
+                Your personalized AI learning journey starts here.
             </p>
-
 
             <div class="profile">
 
-                <span id="education">
-                </span>
+                <span id="education"></span>
 
                 &nbsp; • &nbsp;
 
-                <span id="board">
-                </span>
+                <span id="course"></span>
 
                 &nbsp; • &nbsp;
 
-                <span id="course">
-                </span>
-
-                &nbsp; • &nbsp;
-
-                <span id="branch">
-                </span>
+                <span id="branch"></span>
 
             </div>
 
         </section>
 
 
-
         <!-- STATS -->
 
         <div class="cards">
-
 
             <div class="card">
 
@@ -618,12 +342,11 @@
                     Current Level
                 </h3>
 
-                <p id="currentLevel">
+                <p>
                     Level 1
                 </p>
 
             </div>
-
 
 
             <div class="card">
@@ -639,7 +362,6 @@
             </div>
 
 
-
             <div class="card">
 
                 <h3>
@@ -651,7 +373,6 @@
                 </p>
 
             </div>
-
 
 
             <div class="card">
@@ -669,6 +390,17 @@
         </div>
 
 
+        <!-- STUDY PLAN -->
+        <section class="study-plan">
+            <div class="study-plan-header">
+                <h2>📅 My Study Plan</h2>
+                <span class="plan-badge" id="planLevel">Personalized</span>
+            </div>
+            <div class="plan-grid" id="studyPlanGrid"></div>
+            <div class="plan-tip" id="studyPlanTip">Your study plan is being prepared according to your standard and goal.</div>
+        </section>
+
+        <!-- CONTENT -->
 
         <div class="main-grid">
 
@@ -686,7 +418,6 @@
                         📚 Continue Learning
                     </h2>
 
-
                     <div id="subjects">
 
                     </div>
@@ -694,15 +425,13 @@
                 </section>
 
 
-
-                <!-- LEVEL 1 -->
+                <!-- LEVEL -->
 
                 <section class="section">
 
                     <h2>
-                        🎯 Level 1 Progress
+                        🎯 Your Learning Level
                     </h2>
-
 
                     <div class="level-box">
 
@@ -710,14 +439,9 @@
                             Level 1
                         </h3>
 
-
-                        <p>
-
-                            Complete the Final Quiz
-                            of every Level 1 topic
-                            with at least
-                            <strong>70%</strong>.
-
+                        <p style="margin-top:7px;">
+                            Complete all topics in Level 1
+                            to unlock Level 2.
                         </p>
 
 
@@ -732,77 +456,21 @@
                         </div>
 
 
-                        <p
-                            class="progress-text"
-                            id="progressText">
+                        <p style="margin-top:8px;">
 
-                            0%
+                            <span id="progressText">
+                                0%
+                            </span>
 
-                        </p>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- LEVEL 2 -->
-
-                <section class="section">
-
-                    <h2>
-                        🚀 Level 2
-                    </h2>
-
-
-                    <div
-                        class="level-box level2"
-                        id="level2Box">
-
-
-                        <h3 id="level2Title">
-
-                            🔒 Level 2 Locked
-
-                        </h3>
-
-
-                        <p id="level2Description">
-
-                            Complete all Level 1
-                            Final Quizzes with
-                            70% or above to unlock
-                            advanced learning.
+                            completed
 
                         </p>
-
-
-                        <p
-                            id="level2Status"
-                            class="lock-text">
-
-                            🔒 Locked
-
-                        </p>
-
-
-                        <button
-                            id="level2Button"
-                            class="advanced-btn"
-                            disabled
-                            onclick="openLevel2()">
-
-                            Level 2 Locked
-
-                        </button>
-
 
                     </div>
 
                 </section>
 
             </div>
-
 
 
             <!-- RIGHT -->
@@ -822,25 +490,18 @@
                     <div class="weak-topic">
 
                         <h3 id="weakTopic">
-
                             No weak topic yet
-
                         </h3>
 
-
-                        <p id="weakDescription">
-
-                            Complete practice quizzes.
-                            SmartLearn will identify
-                            topics that need more
-                            attention.
-
+                        <p>
+                            Complete practice questions.
+                            SmartLearn will identify topics
+                            that need more attention.
                         </p>
 
                     </div>
 
                 </section>
-
 
 
                 <!-- QUICK ACTIONS -->
@@ -859,6 +520,17 @@
                         Continue Learning
 
                     </button>
+
+
+                    <button
+                        class="action-btn"
+                        onclick="practiceQuestions()">
+
+                        Practice Questions
+
+                    </button>
+
+
                     <button
                         class="action-btn"
                         onclick="openAI()">
@@ -880,17 +552,17 @@
 <script>
 
 
-    /* =====================================================
-       1. STUDENT PROFILE
-    ===================================================== */
+    // =========================================
+    // GET STUDENT PROFILE
+    // =========================================
 
-    const profileData =
-        localStorage.getItem(
-            "studentProfile"
+    const profile =
+        JSON.parse(
+            localStorage.getItem("studentProfile")
         );
 
 
-    if (!profileData) {
+    if (!profile) {
 
         window.location.href =
             "student-profile.html";
@@ -898,100 +570,70 @@
     }
 
 
-    const profile =
-        JSON.parse(profileData);
+    // =========================================
+    // SHOW STUDENT INFORMATION
+    // =========================================
+
+    document.getElementById("studentName")
+        .textContent =
+        profile.name || "Student";
 
 
-
-    /* =====================================================
-       2. STUDENT INFORMATION
-    ===================================================== */
-
-    document.getElementById(
-        "studentName"
-    ).textContent =
-        profile.fullName ||
-        profile.name ||
-        "Student";
+    let educationText = "";
 
 
-    if (
-        profile.educationLevel ===
-        "school"
-    ) {
+    if (profile.educationLevel === "school") {
 
-        document.getElementById(
-            "education"
-        ).textContent =
-            profile.standard ||
-            "School";
+        educationText =
+            profile.standard || "School";
 
+    }
 
-        document.getElementById(
-            "board"
-        ).textContent =
-            profile.board ||
-            "";
+    else {
 
-
-    } else {
-
-        document.getElementById(
-            "education"
-        ).textContent =
-            profile.collegeYear ||
-            profile.year ||
-            "College";
+        educationText =
+            profile.collegeYear || "College";
 
     }
 
 
-    document.getElementById(
-        "course"
-    ).textContent =
-        profile.course ||
-        "";
+    document.getElementById("education")
+        .textContent =
+        educationText;
 
 
-    document.getElementById(
-        "branch"
-    ).textContent =
-        profile.branch ||
-        "";
+    document.getElementById("course")
+        .textContent =
+        profile.course || "";
 
 
+    document.getElementById("branch")
+        .textContent =
+        profile.branch || "";
 
-    /* =====================================================
-       3. GET SUBJECT LIST
-       IMPORTANT:
-       These names match learning.html
-    ===================================================== */
+
+    // =========================================
+    // PROFILE VALUES
+    // =========================================
 
     const course =
-        (
-            profile.course ||
-            ""
-        ).toLowerCase();
+        (profile.course || "").toLowerCase();
 
 
     const branch =
-        (
-            profile.branch ||
-            ""
-        ).toLowerCase();
+        (profile.branch || "").toLowerCase();
 
 
     const goal =
-        (
-            profile.goal ||
-            ""
-        ).toLowerCase();
+        (profile.goal || "").toLowerCase();
 
 
     let subjectList = [];
 
 
-    /* B.TECH CSE / IT */
+    // =========================================
+    // B.TECH CSE / IT
+    // =========================================
 
     if (
 
@@ -1015,24 +657,24 @@
 
             "Data Structures & Algorithms",
 
-            "OOP",
+            "Object Oriented Programming",
 
-            "DBMS",
+            "Database Management System",
 
-            "OS",
+            "Operating Systems",
 
-            "CN"
+            "Computer Networks"
 
         ];
 
     }
 
 
-    /* JEE */
+    // =========================================
+    // JEE
+    // =========================================
 
-    else if (
-        goal.includes("jee")
-    ) {
+    else if (goal.includes("jee")) {
 
         subjectList = [
 
@@ -1047,11 +689,11 @@
     }
 
 
-    /* NEET */
+    // =========================================
+    // NEET
+    // =========================================
 
-    else if (
-        goal.includes("neet")
-    ) {
+    else if (goal.includes("neet")) {
 
         subjectList = [
 
@@ -1066,18 +708,19 @@
     }
 
 
-    /* SCHOOL */
+    // =========================================
+    // SCHOOL
+    // =========================================
 
     else if (
-        profile.educationLevel ===
-        "school"
+        profile.educationLevel === "school"
     ) {
 
         subjectList = [
 
-            "School Mathematics",
+            "Mathematics",
 
-            "School Science",
+            "Science",
 
             "English"
 
@@ -1086,12 +729,12 @@
     }
 
 
-    /* SOFTWARE DEVELOPER */
+    // =========================================
+    // SOFTWARE DEVELOPER
+    // =========================================
 
     else if (
-        goal.includes(
-            "software developer"
-        )
+        goal.includes("software developer")
     ) {
 
         subjectList = [
@@ -1107,7 +750,9 @@
     }
 
 
-    /* DEFAULT */
+    // =========================================
+    // OTHER
+    // =========================================
 
     else {
 
@@ -1124,677 +769,51 @@
     }
 
 
-
-    /* =====================================================
-       4. TOPICS FOR EACH SUBJECT
-    ===================================================== */
-
-    const subjectTopics = {
-
-        "Data Structures & Algorithms": [
-
-            "Arrays",
-            "Linked Lists",
-            "Stacks",
-            "Queues",
-            "Trees",
-            "Graphs",
-            "Searching & Sorting",
-            "Time Complexity"
-
-        ],
-
-
-        "OOP": [
-
-            "Classes & Objects",
-            "Constructors",
-            "Encapsulation",
-            "Inheritance",
-            "Polymorphism",
-            "Abstraction",
-            "Interfaces"
-
-        ],
-
-
-        "DBMS": [
-
-            "ER Model",
-            "Relational Model",
-            "SQL",
-            "Normalization",
-            "Keys & Constraints",
-            "Transactions",
-            "Concurrency Control"
-
-        ],
-
-
-        "OS": [
-
-            "Processes",
-            "Threads",
-            "CPU Scheduling",
-            "Deadlocks",
-            "Memory Management",
-            "Virtual Memory",
-            "File Systems"
-
-        ],
-
-
-        "CN": [
-
-            "OSI Model",
-            "TCP/IP",
-            "IP Addressing",
-            "Routing",
-            "TCP & UDP",
-            "DNS",
-            "HTTP & HTTPS"
-
-        ],
-
-
-        "Physics": [
-
-            "Mechanics",
-            "Electrostatics",
-            "Current Electricity",
-            "Optics"
-
-        ],
-
-
-        "Chemistry": [
-
-            "Physical Chemistry",
-            "Organic Chemistry",
-            "Inorganic Chemistry"
-
-        ],
-
-
-        "Mathematics": [
-
-            "Algebra",
-            "Calculus",
-            "Coordinate Geometry",
-            "Probability"
-
-        ],
-
-
-        "Biology": [
-
-            "Cell Biology",
-            "Human Physiology",
-            "Genetics",
-            "Ecology"
-
-        ],
-
-
-        "School Mathematics": [
-
-            "Number System",
-            "Algebra",
-            "Geometry",
-            "Mensuration"
-
-        ],
-
-
-        "School Science": [
-
-            "Physics Basics",
-            "Chemistry Basics",
-            "Biology Basics"
-
-        ],
-
-
-        "English": [
-
-            "Grammar",
-            "Vocabulary",
-            "Reading Comprehension"
-
-        ],
-
-
-        "Programming": [
-
-            "Programming Fundamentals",
-            "Object Oriented Programming",
-            "Problem Solving"
-
-        ],
-
-
-        "Web Development": [
-
-            "HTML",
-            "CSS",
-            "JavaScript"
-
-        ],
-
-
-        "Data Structures": [
-
-            "Arrays",
-            "Linked Lists",
-            "Stacks",
-            "Queues"
-
-        ]
-
-    };
-
-
-
-    /* =====================================================
-       5. STUDENT ID
-    ===================================================== */
-
-    function getStudentId() {
-
-        return (
-            profile.email ||
-            profile.mobile ||
-            profile.fullName ||
-            profile.name ||
-            "student"
-        );
-
-    }
-
-
-
-    /* =====================================================
-       6. GET TOPIC PROGRESS
-    ===================================================== */
-
-    function getTopicProgress(
-        subject,
-        topic
-    ) {
-
-        const key =
-            "smartLearnProgress_" +
-            getStudentId() +
-            "_" +
-            subject +
-            "_" +
-            topic;
-
-
-        const data =
-            localStorage.getItem(key);
-
-
-        if (!data) {
-
-            return {
-
-                quizzes: {},
-
-                finalAttempts: [],
-
-                finalScore: null,
-
-                completed: false,
-
-                weakAreas: []
-
-            };
-
-        }
-
-
-        try {
-
-            return JSON.parse(data);
-
-        } catch {
-
-            return {
-
-                quizzes: {},
-
-                finalAttempts: [],
-
-                finalScore: null,
-
-                completed: false,
-
-                weakAreas: []
-
-            };
-
-        }
-
-    }
-
-
-
-    /* =====================================================
-       7. GET ALL LEVEL 1 TOPICS
-    ===================================================== */
-
-    function getAllLevel1Topics() {
-
-        let result = [];
-
-
-        subjectList.forEach(
-            subject => {
-
-                const topics =
-                    subjectTopics[
-                        subject
-                    ] || [];
-
-
-                topics.forEach(
-                    topic => {
-
-                        result.push({
-
-                            subject:
-                                subject,
-
-                            topic:
-                                topic
-
-                        });
-
-                    }
-                );
-
-            }
-        );
-
-
-        return result;
-
-    }
-
-
-
-    /* =====================================================
-       8. CALCULATE LEVEL 1 PROGRESS
-    ===================================================== */
-
-    function calculateLevel1Progress() {
-
-        const allTopics =
-            getAllLevel1Topics();
-
-
-        if (allTopics.length === 0) {
-
-            return {
-
-                total: 0,
-
-                completed: 0,
-
-                percentage: 0
-
-            };
-
-        }
-
-
-        let completed = 0;
-
-
-        allTopics.forEach(
-            item => {
-
-                const progress =
-                    getTopicProgress(
-                        item.subject,
-                        item.topic
-                    );
-
-
-                /*
-                   IMPORTANT:
-                   Topic is complete ONLY
-                   when Final Quiz >= 70%.
-                */
-
-                if (
-                    progress.finalScore !== null &&
-                    Number(
-                        progress.finalScore
-                    ) >= 70
-                ) {
-
-                    completed++;
-
-                }
-
-            }
-        );
-
-
-        return {
-
-            total:
-                allTopics.length,
-
-            completed:
-                completed,
-
-            percentage:
-                Math.round(
-                    (
-                        completed /
-                        allTopics.length
-                    ) * 100
-                )
-
-        };
-
-    }
-
-
-
-    /* =====================================================
-       9. LEVEL 2 UNLOCK
-    ===================================================== */
-
-    function isLevel2Unlocked() {
-
-        const data =
-            calculateLevel1Progress();
-
-
-        return (
-            data.total > 0 &&
-            data.completed === data.total
-        );
-
-    }
-
-
-
-    /* =====================================================
-       10. DISPLAY LEVEL
-    ===================================================== */
-
-    function updateLevelUI() {
-
-        const progress =
-            calculateLevel1Progress();
-
-
-        document.getElementById(
-            "progress"
-        ).style.width =
-            progress.percentage + "%";
-
-
-        document.getElementById(
-            "progressText"
-        ).textContent =
-            `${progress.completed} / ${progress.total} topics completed (${progress.percentage}%)`;
-
-
-        document.getElementById(
-            "topicsCompleted"
-        ).textContent =
-            progress.completed;
-
-
-        document.getElementById(
-            "learningProgress"
-        ).textContent =
-            progress.percentage + "%";
-
-
-        const unlocked =
-            isLevel2Unlocked();
-
-
-        const level =
-            unlocked
-                ? "Level 2"
-                : "Level 1";
-
-
-        document.getElementById(
-            "currentLevel"
-        ).textContent =
-            level;
-
-
-        const title =
-            document.getElementById(
-                "level2Title"
-            );
-
-
-        const description =
-            document.getElementById(
-                "level2Description"
-            );
-
-
-        const status =
-            document.getElementById(
-                "level2Status"
-            );
-
-
-        const button =
-            document.getElementById(
-                "level2Button"
-            );
-
-
-        if (unlocked) {
-
-            title.textContent =
-                "🔓 Level 2 Unlocked";
-
-
-            description.textContent =
-                "Excellent! You have scored 70% or above in the Final Quiz of every Level 1 topic. Advanced learning is now available.";
-
-
-            status.textContent =
-                "✅ Unlocked";
-
-
-            status.className =
-                "unlock-text";
-
-
-            button.disabled =
-                false;
-
-
-            button.textContent =
-                "🚀 Start Level 2";
-
-        }
-
-        else {
-
-            title.textContent =
-                "🔒 Level 2 Locked";
-
-
-            description.textContent =
-                "Complete every Level 1 topic Final Quiz with a score of 70% or above.";
-
-
-            status.textContent =
-                "🔒 Locked";
-
-
-            status.className =
-                "lock-text";
-
-
-            button.disabled =
-                true;
-
-
-            button.textContent =
-                "Level 2 Locked";
-
-        }
-
-    }
-
-
-
-    /* =====================================================
-       11. DISPLAY SUBJECTS
-    ===================================================== */
+    // =========================================
+    // DISPLAY SUBJECTS
+    // =========================================
 
     const subjectsContainer =
-        document.getElementById(
-            "subjects"
-        );
+        document.getElementById("subjects");
 
 
-    function displaySubjects() {
+    subjectList.forEach(function(subject) {
 
-        subjectsContainer.innerHTML =
-            "";
+        subjectsContainer.innerHTML += `
 
+            <div class="subject">
 
-        subjectList.forEach(
-            subject => {
+                <div>
 
-                const topics =
-                    subjectTopics[
-                        subject
-                    ] || [];
-
-
-                let completedCount = 0;
-
-
-                topics.forEach(
-                    topic => {
-
-                        const progress =
-                            getTopicProgress(
-                                subject,
-                                topic
-                            );
-
-
-                        if (
-                            progress.finalScore !== null &&
-                            Number(
-                                progress.finalScore
-                            ) >= 70
-                        ) {
-
-                            completedCount++;
-
-                        }
-
-                    }
-                );
-
-
-                const percentage =
-                    topics.length
-                        ? Math.round(
-                            (
-                                completedCount /
-                                topics.length
-                            ) * 100
-                        )
-                        : 0;
-
-
-                const div =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                div.className =
-                    "subject";
-
-
-                div.innerHTML = `
-
-                    <div>
-
-                        <div class="subject-name">
-
-                            ${subject}
-
-                        </div>
-
-
-                        <div class="subject-info">
-
-                            ${completedCount}
-                            /
-                            ${topics.length}
-                            topics completed
-                            •
-                            ${percentage}%
-
-                        </div>
-
+                    <div class="subject-name">
+                        ${subject}
                     </div>
 
+                    <div class="subject-info">
+                        Personalized learning for your profile
+                    </div>
 
-                    <button
-                        class="learn-btn"
-                        onclick="openSubject('${escapeJS(subject)}')">
-
-                        Continue →
-
-                    </button>
-
-                `;
+                </div>
 
 
-                subjectsContainer.appendChild(
-                    div
-                );
+                <button
+                    class="learn-btn"
+                    onclick="openSubject('${subject}')">
 
-            }
-        );
+                    Continue
 
-    }
+                </button>
 
+            </div>
 
+        `;
 
-    /* =====================================================
-       12. ESCAPE SUBJECT
-    ===================================================== */
-
-    function escapeJS(text) {
-
-        return text
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'");
-
-    }
+    });
 
 
-
-    /* =====================================================
-       13. OPEN SPECIFIC SUBJECT
-       ONLY THAT SUBJECT
-    ===================================================== */
+    // =========================================
+    // OPEN SPECIFIC SUBJECT
+    // =========================================
 
     function openSubject(subject) {
 
@@ -1803,17 +822,9 @@
             subject
         );
 
-
         localStorage.removeItem(
             "selectedTopic"
         );
-
-
-        localStorage.setItem(
-            "selectedLevel",
-            "1"
-        );
-
 
         window.location.href =
             "learning.html";
@@ -1821,10 +832,67 @@
     }
 
 
+    // =========================================
+    // CONTINUE LEARNING
+    // =========================================
 
-    /* =====================================================
-       14. CONTINUE LEARNING
-    ===================================================== */
+    // =========================================
+    // PERSONALIZED STUDY PLAN
+    // =========================================
+    function createStudyPlan() {
+        const standardNumber = parseInt(String(profile.standard || "").trim());
+        const goalText = String(profile.goal || "").toLowerCase();
+        const grid = document.getElementById("studyPlanGrid");
+        const badge = document.getElementById("planLevel");
+        const tip = document.getElementById("studyPlanTip");
+        let plan, label, tipText;
+
+        if (!isNaN(standardNumber) && standardNumber >= 5 && standardNumber <= 8) {
+            label = "Std. " + standardNumber;
+            plan = [
+                ["⏰ Daily Time", "60–90 minutes", "Short, regular study sessions."],
+                ["📖 Learn", "2 subjects", "Learn one main concept from each subject."],
+                ["✍️ Practice", "20 questions", "Practice after learning and review mistakes."],
+                ["🔁 Revision", "15 minutes", "Revise today's important points."]
+            ];
+            tipText = "Focus on understanding concepts, examples and regular practice rather than memorization.";
+        } else if (!isNaN(standardNumber) && (standardNumber === 9 || standardNumber === 10)) {
+            label = "Std. " + standardNumber;
+            plan = [
+                ["⏰ Daily Time", "2–3 hours", "Use focused study blocks with short breaks."],
+                ["📚 Core Study", "3 subjects", "Complete concepts and important examples."],
+                ["✍️ Practice", "20+ questions", "Practice topic-wise and analyze wrong answers."],
+                ["🔁 Revision", "30 minutes", "Revise formulas, definitions and weak topics."]
+            ];
+            tipText = "For Std. 9–10, give extra time to difficult topics and use SmartLearn's weak-topic practice.";
+        } else if (!isNaN(standardNumber) && (standardNumber === 11 || standardNumber === 12)) {
+            label = "Std. " + standardNumber;
+            plan = [
+                ["⏰ Daily Time", "3–4 hours", "Use 60–90 minute focused sessions."],
+                ["📚 Concept Study", "3 subjects", "Study theory first and solve examples."],
+                ["🧠 Practice", "40+ questions", "Use topic-wise practice and difficulty progression."],
+                ["🔁 Revision", "45 minutes", "Revise weak areas and maintain short notes."]
+            ];
+            if (goalText.includes("jee")) tipText = "JEE plan: prioritize Physics, Chemistry and Mathematics with concepts, problem solving and weak-topic revision.";
+            else if (goalText.includes("neet")) tipText = "NEET plan: prioritize Physics, Chemistry and Biology with concept learning and regular MCQ practice.";
+            else tipText = "For Std. 11–12, balance board preparation with problem-solving and regular revision.";
+        } else {
+            label = profile.collegeYear || "College";
+            plan = [
+                ["⏰ Daily Time", "2–4 hours", "Divide time between theory, problems and revision."],
+                ["📚 Core Topics", "2 topics", "Complete one concept deeply before moving ahead."],
+                ["💻 Practice", "40+ questions", "Practice topic-wise and work on weak areas."],
+                ["🔁 Revision", "30–45 minutes", "Review notes, mistakes and previous topics."]
+            ];
+            tipText = "Course: " + (profile.course || "Higher Education") + ". Use your quiz performance to decide which topic needs more practice.";
+        }
+
+        badge.textContent = label;
+        grid.innerHTML = plan.map(item => `<div class="plan-item"><h4>${item[0]}</h4><p><strong>${item[1]}</strong><br>${item[2]}</p></div>`).join("");
+        tip.textContent = tipText;
+    }
+
+    createStudyPlan();
 
     function continueLearning() {
 
@@ -1834,42 +902,27 @@
             );
 
 
-        if (
-            lastSubject &&
-            subjectList.includes(
-                lastSubject
-            )
-        ) {
+        if (lastSubject) {
 
-            openSubject(
-                lastSubject
-            );
+            window.location.href =
+                "learning.html";
 
         }
 
         else {
 
-            openSubject(
-                subjectList[0]
-            );
+            openSubject(subjectList[0]);
 
         }
 
     }
 
 
-
-    /* =====================================================
-       15. PRACTICE QUESTIONS
-    ===================================================== */
+    // =========================================
+    // PRACTICE
+    // =========================================
 
     function practiceQuestions() {
-
-        const lastSubject =
-            localStorage.getItem(
-                "selectedSubject"
-            );
-
 
         const lastTopic =
             localStorage.getItem(
@@ -1877,10 +930,7 @@
             );
 
 
-        if (
-            lastSubject &&
-            lastTopic
-        ) {
+        if (lastTopic) {
 
             window.location.href =
                 "quiz.html";
@@ -1889,291 +939,16 @@
 
         else {
 
-            alert(
-                "Please select a subject and topic first."
-            );
-
-            openSubject(
-                subjectList[0]
-            );
+            openSubject(subjectList[0]);
 
         }
 
     }
 
 
-
-    /* =====================================================
-       16. WEAK TOPIC DETECTION
-    ===================================================== */
-
-    function findWeakTopic() {
-
-        let weakest = null;
-
-
-        subjectList.forEach(
-            subject => {
-
-                const topics =
-                    subjectTopics[
-                        subject
-                    ] || [];
-
-
-                topics.forEach(
-                    topic => {
-
-                        const progress =
-                            getTopicProgress(
-                                subject,
-                                topic
-                            );
-
-
-                        const scores =
-                            Object.values(
-                                progress.quizzes || {}
-                            );
-
-
-                        if (
-                            scores.length === 0
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        const average =
-                            scores.reduce(
-                                (
-                                    total,
-                                    score
-                                ) =>
-                                    total +
-                                    Number(score),
-                                0
-                            ) / scores.length;
-
-
-                        if (
-                            !weakest ||
-                            average <
-                            weakest.average
-                        ) {
-
-                            weakest = {
-
-                                subject:
-                                    subject,
-
-                                topic:
-                                    topic,
-
-                                average:
-                                    Math.round(
-                                        average
-                                    )
-
-                            };
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-
-        return weakest;
-
-    }
-
-
-
-    /* =====================================================
-       17. DISPLAY WEAK TOPIC
-    ===================================================== */
-
-    function displayWeakTopic() {
-
-        const weak =
-            findWeakTopic();
-
-
-        const title =
-            document.getElementById(
-                "weakTopic"
-            );
-
-
-        const description =
-            document.getElementById(
-                "weakDescription"
-            );
-
-
-        if (!weak) {
-
-            title.textContent =
-                "No weak topic yet";
-
-
-            description.textContent =
-                "Complete practice quizzes. SmartLearn will identify topics that need more attention.";
-
-            return;
-
-        }
-
-
-        title.textContent =
-            "⚠️ " + weak.topic;
-
-
-        description.textContent =
-            `${weak.subject} • Average practice score: ${weak.average}%. More practice is recommended.`;
-
-    }
-
-
-
-    /* =====================================================
-       18. COUNT PRACTICE QUESTIONS
-    ===================================================== */
-
-    function countPracticeQuestions() {
-
-        let total = 0;
-
-
-        subjectList.forEach(
-            subject => {
-
-                const topics =
-                    subjectTopics[
-                        subject
-                    ] || [];
-
-
-                topics.forEach(
-                    topic => {
-
-                        const progress =
-                            getTopicProgress(
-                                subject,
-                                topic
-                            );
-
-
-                        const quizCount =
-                            Object.keys(
-                                progress.quizzes || {}
-                            ).length;
-
-
-                        /*
-                           20 questions for <=10
-                           40 questions for higher
-                        */
-
-                        const standard =
-                            String(
-                                profile.standard ||
-                                ""
-                            ).toLowerCase();
-
-
-                        const number =
-                            parseInt(
-                                standard
-                            );
-
-
-                        const questions =
-                            (
-                                !isNaN(number) &&
-                                number <= 10
-                            )
-                                ? 20
-                                : 40;
-
-
-                        total +=
-                            quizCount *
-                            questions;
-
-                    }
-                );
-
-            }
-        );
-
-
-        document.getElementById(
-            "practiceQuestions"
-        ).textContent =
-            total;
-
-    }
-
-
-
-    /* =====================================================
-       19. LEVEL 2
-    ===================================================== */
-
-    function openLevel2() {
-
-        if (
-            !isLevel2Unlocked()
-        ) {
-
-            alert(
-                "Complete all Level 1 Final Quizzes with 70% or above first."
-            );
-
-            return;
-
-        }
-
-
-        localStorage.setItem(
-            "selectedLevel",
-            "2"
-        );
-
-
-        localStorage.removeItem(
-            "selectedTopic"
-        );
-
-
-        /*
-           Open the first subject.
-           learning.html can later use
-           selectedLevel to show Level 2 topics.
-        */
-
-        localStorage.setItem(
-            "selectedSubject",
-            subjectList[0]
-        );
-
-
-        window.location.href =
-            "learning.html";
-
-    }
-
-
-
-    /* =====================================================
-       20. AI ASSISTANT
-    ===================================================== */
+    // =========================================
+    // AI ASSISTANT
+    // =========================================
 
     function openAI() {
 
@@ -2183,10 +958,73 @@
     }
 
 
+    // =========================================
+    // LOAD PRACTICE RESULT
+    // =========================================
 
-    /* =====================================================
-       21. LOGOUT
-    ===================================================== */
+    const practiceResult =
+        JSON.parse(
+            localStorage.getItem(
+                "practiceResult"
+            )
+        );
+
+
+    if (practiceResult) {
+
+        document.getElementById(
+            "practiceQuestions"
+        ).textContent =
+            practiceResult.total || 0;
+
+
+        if (practiceResult.weakTopic) {
+
+            document.getElementById(
+                "weakTopic"
+            ).textContent =
+                practiceResult.weakTopic;
+
+        }
+
+    }
+
+
+    // =========================================
+    // LOAD LEARNING PROGRESS
+    // =========================================
+
+    const savedProgress =
+        localStorage.getItem(
+            "learningProgress"
+        );
+
+
+    if (savedProgress) {
+
+        document.getElementById(
+            "progress"
+        ).style.width =
+            savedProgress + "%";
+
+
+        document.getElementById(
+            "progressText"
+        ).textContent =
+            savedProgress + "%";
+
+
+        document.getElementById(
+            "learningProgress"
+        ).textContent =
+            savedProgress + "%";
+
+    }
+
+
+    // =========================================
+    // LOGOUT
+    // =========================================
 
     function logout() {
 
@@ -2194,53 +1032,31 @@
             "studentProfile"
         );
 
-
         localStorage.removeItem(
             "selectedSubject"
         );
-
 
         localStorage.removeItem(
             "selectedTopic"
         );
 
-
         localStorage.removeItem(
-            "selectedQuizNumber"
+            "practiceResult"
         );
 
-
         localStorage.removeItem(
-            "quizMode"
+            "learningProgress"
         );
-
-
-        localStorage.removeItem(
-            "selectedLevel"
-        );
-
 
         window.location.href =
             "login.html";
 
     }
 
-
-
-    /* =====================================================
-       22. INITIALIZE
-    ===================================================== */
-
-    displaySubjects();
-
-    updateLevelUI();
-
-    displayWeakTopic();
-
-    countPracticeQuestions();
-
-
 </script>
+
+
 </body>
 
 </html>
+```
