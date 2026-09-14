@@ -475,10 +475,7 @@ function isSchoolStudent() {
 }
 
 
-const questionCount =
-    quizMode === "final"
-    ? 15
-    : 10;
+const questionCount = 10;
 
 
 /* ==========================================
@@ -1516,8 +1513,8 @@ function generateQuestions() {
     let bank = getQuestions();
 
     /*
-       Practice = 10 MCQs
-       Final = 15 MCQs
+       Practice Quiz = 10 MCQs
+       Final Quiz = 10 MCQs
 
        Selection:
        1. Student profile gives a relevance score.
@@ -1540,11 +1537,15 @@ function generateQuestions() {
         return { q, index, weight };
     });
 
-    // Weighted random selection without forcing duplicates until the bank is exhausted.
+    // Select enough questions for the required quiz size. If a topic bank
+    // has fewer questions than required, cycle through the bank so the quiz
+    // still contains the full required number of questions.
     const pool = [...ranked];
     const selected = [];
 
-    while (selected.length < questionCount && pool.length) {
+    while (selected.length < questionCount) {
+        if (!pool.length) pool.push(...ranked);
+
         const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
         let pick = Math.random() * totalWeight;
         let chosenIndex = 0;
